@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Welcome to CMCS";
+}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>Streamline Your Monthly Claims</h1>
+        <p class="lead">A seamless platform for lecturers to submit claims and administrators to approve them efficiently.</p>
+        <a href="@Url.Action("LecturerDashboard", "Home")" class="btn btn-light btn-lg">Get Started as Lecturer</a>
+        <a href="@Url.Action("ManagerDashboard", "Home")" class="btn btn-light btn-lg">Admin Login</a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Key Features</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-clock feature-icon"></i>
+                        <h5>Quick Submissions</h5>
+                        <p>Submit claims anytime with a single click.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-upload feature-icon"></i>
+                        <h5>Document Upload</h5>
+                        <p>Securely attach supporting files effortlessly.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h5>Real-Time Tracking</h5>
+                        <p>Monitor claim status transparently until settlement.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
