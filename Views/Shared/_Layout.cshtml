@@ -7,33 +7,100 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar { background-color: #2c3e50; }
-        .navbar-brand, .nav-link { color: #ffffff !important; }
-        .container { margin-top: 20px; }
-        .card { border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            transition: 0.3s;
+        }
+
+            .nav-link:hover {
+                color: #f1c40f !important;
+            }
+
+        .hero {
+            padding: 80px 0;
+            background: linear-gradient(120deg, #2980b9, #6dd5fa, #ffffff);
+            color: #fff;
+            text-align: center;
+            border-radius: 0 0 50px 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .btn-lg {
+            border-radius: 30px;
+            padding: 12px 25px;
+        }
+
+        .progress {
+            height: 20px;
+            border-radius: 10px;
+        }
+
+        .table th {
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f9fbfd;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">CMCS</a>
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                <i class="fas fa-university me-2"></i> CMCS
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("LecturerDashboard", "Home")">Lecturer</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("ManagerDashboard", "Home")">Manager</a></li>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("LecturerDashboard", "Home")"><i class="fas fa-chalkboard-teacher me-1"></i> Lecturer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("ManagerDashboard", "Home")"><i class="fas fa-user-tie me-1"></i> Manager</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container my-5">
         @RenderBody()
     </div>
+
+    <footer class="text-center py-4 mt-5 border-top">
+        <small>&copy; @DateTime.Now.Year CMCS. All rights reserved.</small>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
