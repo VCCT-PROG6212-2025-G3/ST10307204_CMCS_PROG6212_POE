@@ -6,11 +6,15 @@
     <div class="container">
         <h1 class="display-4 fw-bold">Streamline Your Monthly Claims</h1>
         <p class="lead mb-4">A seamless platform for lecturers to submit claims and administrators to approve them efficiently.</p>
-        <a href="@Url.Action("LecturerDashboard", "Home")" class="btn btn-light btn-lg me-3 shadow-sm">
+        <a href="@Url.Action("Index", "Lecturer")" class="btn btn-light btn-lg me-3 shadow-sm">
             <i class="fas fa-user-edit me-2"></i> Get Started as Lecturer
         </a>
-        <a href="@Url.Action("ManagerDashboard", "Home")" class="btn btn-warning btn-lg shadow-sm">
-            <i class="fas fa-lock me-2"></i> Admin Login
+        <a href="@Url.Action("Index", "Manager")" class="btn btn-warning btn-lg shadow-sm">
+            <i class="fas fa-lock me-2"></i> Manager Login
+        </a>
+        </a>
+        <a href="@Url.Action("Index", "Coordinator")" class="btn btn-outline-secondary btn-lg me-3 shadow-sm">
+            <i class="fa-solid fa-user-secret"></i> Coordinator Login
         </a>
     </div>
 </section>

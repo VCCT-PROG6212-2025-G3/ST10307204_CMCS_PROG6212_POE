@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Lecturer Dashboard";
+}
+
+<div class="row g-4">
+    <div class="col-md-12">
+        <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
+            <i class="fas fa-info-circle me-2 fs-5"></i>
+            <div>
+                <strong>Welcome back, John Doe!</strong> <br>
+                Manage your claims and track their status.
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Lecturer Dashboard</h4>
+            </div>
+            <div class="card-body text-center">
+                <a href="@Url.Action("SubmitClaim", "Lecturer")" class="btn btn-success btn-lg m-2">
+                    <i class="fas fa-file-invoice me-2"></i> Submit New Claim
+                </a>
+                <a href="@Url.Action("TrackClaims", "Lecturer")" class="btn btn-info btn-lg m-2">
+                    <i class="fas fa-chart-bar me-2"></i> Track Claims
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

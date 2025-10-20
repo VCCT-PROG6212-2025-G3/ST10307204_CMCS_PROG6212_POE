@@ -1,0 +1,50 @@
+﻿@model List<ClaimModel>
+@{
+    ViewData["Title"] = "Track Claims";
+}
+
+<div class="row g-4">
+    <!-- Main Column -->
+    <div class="col-md-12">
+        <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
+            <i class="fas fa-info-circle me-2 fs-5"></i>
+            <div>
+                <strong>Welcome back, John Doe!</strong> <br>
+                View the status of your claims below.
+            </div>
+        </div>
+
+        <!-- Claim Status Tracker -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Claim Status Tracker</h5>
+            </div>
+            <div class="card-body">
+                @foreach (var claim in Model)
+                {
+                    <div class="mb-3">
+                        <p><strong>Claim ID:</strong> @claim.ClaimId</p>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
+                                 role="progressbar" style="width: @(claim.Status == "Approved" ? 100 : claim.Status == "Rejected" ? 50 : 25)%">
+                                @claim.Status
+                            </div>
+                        </div>
+                        <p class="text-muted mb-1"><i class="fas fa-calendar-alt me-1"></i> Last Updated: @DateTime.Now.ToString("yyyy-MM-dd")</p>
+                        <span class="badge bg-secondary fs-6 px-3 py-2">@(claim.Status == "Pending" ? "Pending Coordinator" : claim.Status)</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Statistics Section (per feedback) -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Claim Statistics</h5>
+            </div>
+            <div class="card-body">
+                <p>Total Claims Submitted: @Model.Count</p>
+            </div>
+        </div>
+    </div>
+</div>
