@@ -12,7 +12,7 @@
         <p class="text-muted mb-4">As a Coordinator, review and verify claims before they proceed to the Manager. Ensure all details and documents are accurate.</p>
         <!-- Search Bar -->
         <div class="input-group mb-4 shadow-sm" style="background: rgba(23, 162, 184, 0.05); border-radius: 10px;">
-            <input type="search" class="form-control rounded-start-pill" placeholder="Search claims..." style="background: none; border: none;">
+            <input type="search" id="searchInput" class="form-control rounded-start-pill" placeholder="Search claims by lecturer..." style="background: none; border: none;" onkeyup="filterClaims()">
             <button class="btn btn-outline-info rounded-end-pill" type="button" style="border-color: #17a2b8;">
                 <i class="fas fa-filter"></i> Filter
             </button>
@@ -20,7 +20,7 @@
 
         <!-- Claims Table -->
         <div class="table-responsive">
-            <table class="table align-middle table-hover shadow-sm">
+            <table class="table align-middle table-hover shadow-sm" id="claimsTable">
                 <thead class="table-dark">
                     <tr>
                         <th>Claim ID</th>
@@ -37,10 +37,9 @@
                     {
                         <tr>
                             <td>@claim.ClaimId</td>
-                            <td>John Doe <br><small class="text-muted">john@example.com</small></td>
+                            <td>@claim.Lecturer.FirstName @claim.Lecturer.LastName <br><small class="text-muted">@claim.Lecturer.Email</small></td>
                             <td>@claim.HoursWorked</td>
                             <td>$@(claim.HoursWorked* claim.HourlyRate)</td>
-                            <td>2025-09-10</td>
                             <td><span class="badge bg-warning text-dark px-3 py-2">@claim.Status</span></td>
                             <td class="text-center">
                                 <form asp-action="Index" method="post">
@@ -68,3 +67,19 @@
         </nav>
     </div>
 </div>
+
+<script>
+    function filterClaims() {
+        var input = document.getElementById("searchInput").value.toLowerCase();
+        var table = document.getElementById("claimsTable");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var td = tr[i].getElementsByTagName("td")[1]; // Lecturer column
+            if (td) {
+                var text = td.textContent || td.innerText;
+                tr[i].style.display = text.toLowerCase().indexOf(input) > -1 ? "" : "none";
+            }
+        }
+    }
+</script>
