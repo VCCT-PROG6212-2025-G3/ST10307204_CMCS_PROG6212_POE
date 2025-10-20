@@ -17,12 +17,12 @@ namespace CMCS_PROG6212_POE.Controllers
             var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId);
             if (claim != null)
             {
-                claim.Approval.CoordinatorId = 1; // Mock ID; replace with session/user data in production
+                claim.Approval.CoordinatorId = 1; // Mock ID
                 switch (action)
                 {
                     case "Verify":
                         claim.Status = "Verified";
-                        TempData["SuccessMessage"] = $"Claim #{claimId} has been verified.";
+                        TempData["SuccessMessage"] = $"Claim #{claimId} has been verified and sent to the Manager.";
                         break;
                     case "Reject":
                         claim.Status = "Rejected";
