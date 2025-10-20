@@ -1,4 +1,5 @@
 ﻿@model List<ClaimModel>
+
 @{
     ViewData["Title"] = "Manager Dashboard";
 }
@@ -9,6 +10,20 @@
         <span class="badge bg-light text-dark">@Model.Count Pending</span>
     </div>
     <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-check-circle me-2 fs-5"></i>
+                <div>@TempData["SuccessMessage"]</div>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+                <div>@TempData["ErrorMessage"]</div>
+            </div>
+        }
         <p class="text-muted mb-4">As a Manager, finalize claim approvals or rejections. Review verified claims and ensure compliance with policies.</p>
         <!-- Search Bar -->
         <div class="input-group mb-4 shadow-sm" style="background: rgba(40, 167, 69, 0.05); border-radius: 10px;">
@@ -27,7 +42,6 @@
                         <th>Lecturer</th>
                         <th>Hours</th>
                         <th>Amount</th>
-                        <th>Submitted</th>
                         <th>Status</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -37,10 +51,9 @@
                     {
                         <tr>
                             <td>@claim.ClaimId</td>
-                            <td>John Doe <br><small class="text-muted">john@example.com</small></td>
+                            <td>@claim.Lecturer.FirstName @claim.Lecturer.LastName <br><small class="text-muted">@claim.Lecturer.Email</small></td>
                             <td>@claim.HoursWorked</td>
-                            <td>$@(claim.HoursWorked* claim.HourlyRate)</td>
-                            <td>2025-09-10</td>
+                            <td>$@(claim.HoursWorked * claim.HourlyRate)</td>
                             <td><span class="badge bg-warning text-dark px-3 py-2">@claim.Status</span></td>
                             <td class="text-center">
                                 <form asp-action="Index" method="post">

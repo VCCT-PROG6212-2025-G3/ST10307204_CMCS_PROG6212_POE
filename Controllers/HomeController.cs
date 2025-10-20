@@ -1,7 +1,8 @@
 using System.Diagnostics;
+using CMCS_PROG6212_POE.Data;
 using CMCS_PROG6212_POE.Models;
 using Microsoft.AspNetCore.Mvc;
-using CMCS_PROG6212_POE.Data;
+
 public class HomeController : Controller
 {
     public IActionResult Index()

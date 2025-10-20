@@ -1,0 +1,61 @@
+﻿@model ClaimModel
+@{
+    ViewData["Title"] = "View Claim";
+}
+
+<div class="row g-4">
+    <div class="col-md-12">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-check-circle me-2 fs-5"></i>
+                <div>@TempData["SuccessMessage"]</div>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+                <div>@TempData["ErrorMessage"]</div>
+            </div>
+        }
+
+        <div class="card shadow-sm" style="border-left: 5px solid #28a745;">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0"><i class="fas fa-file-alt me-2"></i>Claim Details - #@Model.ClaimId</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Lecturer:</strong> @Model.Lecturer.FirstName @Model.Lecturer.LastName</p>
+                        <p><strong>Email:</strong> @Model.Lecturer.Email</p>
+                        <p><strong>Hours Worked:</strong> @Model.HoursWorked</p>
+                        <p><strong>Hourly Rate:</strong> $@Model.HourlyRate</p>
+                        <p><strong>Total Amount:</strong> $@(Model.HoursWorked* Model.HourlyRate)</p>
+                        <p><strong>Status:</strong> <span class="badge bg-warning text-dark px-3 py-2">@Model.Status</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Notes:</strong> @Model.Notes</p>
+                        <p><strong>Documents:</strong></p>
+                        @if (Model.Documents.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var doc in Model.Documents)
+                                {
+                                    <li class="list-group-item">@doc.FileName (<small>@(doc.FileSize / 1024) KB</small>)</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No documents uploaded.</p>
+                        }
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "Manager")" class="btn btn-success mt-3">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
