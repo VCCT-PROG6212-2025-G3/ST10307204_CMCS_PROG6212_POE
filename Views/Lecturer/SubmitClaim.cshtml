@@ -4,8 +4,22 @@
 }
 
 <div class="row g-4">
-    <!-- Left Column -->
-    <div class="col-md-7">
+    <div class="col-md-12">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-check-circle me-2 fs-5"></i>
+                <div>@TempData["SuccessMessage"]</div>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+                <div>@TempData["ErrorMessage"]</div>
+            </div>
+        }
+
         <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
             <i class="fas fa-info-circle me-2 fs-5"></i>
             <div>
@@ -14,13 +28,24 @@
             </div>
         </div>
 
-        <!-- Submit Claim Card -->
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Submit Monthly Claim</h4>
             </div>
             <div class="card-body">
-                <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data">
+                <form asp-action="SubmitClaim" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fas fa-user me-1"></i> First Name</label>
+                        <input asp-for="Lecturer.FirstName" class="form-control" placeholder="e.g., John">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fas fa-user me-1"></i> Last Name</label>
+                        <input asp-for="Lecturer.LastName" class="form-control" placeholder="e.g., Doe">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fas fa-envelope me-1"></i> Email</label>
+                        <input asp-for="Lecturer.Email" class="form-control" placeholder="e.g., john@example.com">
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold"><i class="fas fa-clock me-1"></i> Hours Worked</label>
                         <input asp-for="HoursWorked" class="form-control" placeholder="e.g., 40">
@@ -38,33 +63,19 @@
                     </button>
                     @if (!ViewData.ModelState.IsValid)
                     {
-                        <div class="text-danger">@ViewData.ModelState[""].Errors.First().ErrorMessage</div>
+                        <div class="text-danger">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <p>@error.ErrorMessage</p>
+                            }
+                        </div>
                     }
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Right Column -->
-    <div class="col-md-5">
-        <!-- Upload Documents -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Supporting Documents</h5>
-            </div>
-            <div class="card-body">
-                <input type="file" name="file" class="form-control mb-3" multiple accept=".pdf,.docx,.xlsx">
-                <button type="submit" class="btn btn-primary w-100 mb-3">
-                    <i class="fas fa-cloud-upload-alt me-2"></i> Upload Files
-                </button>
-                <small class="text-muted d-block mb-2">Accepted: PDF, DOCX, XLSX (Max 5MB)</small>
-                <hr>
-                <p class="mb-1 fw-bold">Uploaded Files:</p>
-                @if (Model.Documents?.Any() ?? false)
-                {
-                    <span class="badge bg-secondary rounded-pill px-3 py-2">@Model.Documents.First().FileName</span>
-                }
-            </div>
-        </div>
-    </div>
 </div>
+
+<a href="@Url.Action("UploadDocuments", "Lecturer")" class="btn btn-info mt-3">
+    <i class="fas fa-upload me-2"></i> Upload Supporting Documents
+</a>
