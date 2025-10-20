@@ -31,7 +31,7 @@
                         <p><strong>Email:</strong> @Model.Lecturer.Email</p>
                         <p><strong>Hours Worked:</strong> @Model.HoursWorked</p>
                         <p><strong>Hourly Rate:</strong> $@Model.HourlyRate</p>
-                        <p><strong>Total Amount:</strong> $@(Model.HoursWorked* Model.HourlyRate)</p>                       
+                        <p><strong>Total Amount:</strong> $@(Model.HoursWorked* Model.HourlyRate)</p>
                         <p><strong>Status:</strong> <span class="badge bg-warning text-dark px-3 py-2">@Model.Status</span></p>
                     </div>
                     <div class="col-md-6">
@@ -42,7 +42,15 @@
                             <ul class="list-group">
                                 @foreach (var doc in Model.Documents)
                                 {
-                                    <li class="list-group-item">@doc.FileName (<small>@(doc.FileSize / 1024) KB</small>)</li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        @doc.FileName (<small>@(doc.FileSize / 1024) KB</small>)
+                                        <div>
+                                           
+                                            <a href="@Url.Action("GetDocument", "Coordinator", new { claimId = Model.ClaimId, fileName = doc.FileName })" class="btn btn-secondary btn-sm" download>
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                        </div>
+                                    </li>
                                 }
                             </ul>
                         }
