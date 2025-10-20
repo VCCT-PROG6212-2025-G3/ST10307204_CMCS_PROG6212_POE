@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CMCS_PROG6212_POE.Controllers
 {
-
     public class LecturerController : Controller
     {
         public IActionResult Index() => View();
@@ -33,21 +32,25 @@ namespace CMCS_PROG6212_POE.Controllers
         public IActionResult UploadDocuments()
         {
             var pendingClaims = DataStore.Claims.Where(c => c.Status == "Pending").ToList();
-            // Preserve the last selected claim ID if available
-            var selectedClaimId = TempData["SelectedClaimId"] as int? ?? (pendingClaims.Any() ? pendingClaims.First().ClaimId : (int?)null);
-            if (selectedClaimId.HasValue)
-            {
-                TempData["SelectedClaimId"] = selectedClaimId; // Keep it for the view
-            }
+            TempData["SelectedClaimId"] = null; // Default to no selection on load
             return View(pendingClaims);
         }
         [HttpPost]
         public IActionResult UploadDocuments(int claimId, List<IFormFile> files)
         {
+            if (claimId == -1) // Placeholder selection
+            {
+                TempData.Remove("SuccessMessage");
+                TempData.Remove("ErrorMessage");
+                TempData["SelectedClaimId"] = null;
+                return RedirectToAction("UploadDocuments");
+            }
+
             var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
             if (claim == null)
             {
                 TempData["ErrorMessage"] = "Invalid or non-pending claim.";
+                TempData["SelectedClaimId"] = null;
                 return RedirectToAction("UploadDocuments");
             }
 
@@ -57,6 +60,7 @@ namespace CMCS_PROG6212_POE.Controllers
             if (currentSize + totalNewSize > 10 * 1024 * 1024)
             {
                 TempData["ErrorMessage"] = "Total file size for this claim exceeds 10 MB.";
+                TempData["SelectedClaimId"] = claimId;
                 return RedirectToAction("UploadDocuments");
             }
 
@@ -86,32 +90,54 @@ namespace CMCS_PROG6212_POE.Controllers
                         else
                         {
                             TempData["ErrorMessage"] = $"Invalid file type for {file.FileName}.";
+                            TempData["SelectedClaimId"] = claimId;
                             return RedirectToAction("UploadDocuments");
                         }
                     }
                     catch (Exception ex)
                     {
                         TempData["ErrorMessage"] = $"Error uploading {file.FileName}: {ex.Message}";
+                        TempData["SelectedClaimId"] = claimId;
                         return RedirectToAction("UploadDocuments");
                     }
                 }
                 TempData["SuccessMessage"] = $"Successfully uploaded {files.Count} document(s) to Claim #{claimId}.";
-                TempData["SelectedClaimId"] = claimId; // Update selected claim ID
+                TempData["SelectedClaimId"] = claimId;
                 return RedirectToAction("UploadDocuments");
             }
             else
             {
                 TempData["ErrorMessage"] = "No files uploaded.";
+                TempData["SelectedClaimId"] = claimId;
                 return RedirectToAction("UploadDocuments");
             }
+        }
+
+        [HttpGet]
+        public IActionResult GetClaimDocuments(int claimId)
+        {
+            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
+            if (claim != null && claim.Documents.Any())
+            {
+                var html = new StringBuilder();
+                html.Append("<div>");
+                foreach (var doc in claim.Documents)
+                {
+                    html.Append($"<span class='badge bg-secondary rounded-pill px-3 py-2 me-2'>{doc.FileName}</span>");
+                }
+                html.Append($"<p class='text-muted mt-2'>Total Size: {((double)claim.Documents.Sum(d => d.FileSize) / 1024 / 1024).ToString("0.##")} MB</p>");
+                html.Append("</div>");
+                return Content(html.ToString(), "text/html");
+            }
+            return Content("<span class='badge bg-secondary rounded-pill px-3 py-2'>No documents yet</span>", "text/html");
         }
 
         private byte[] EncryptFile(byte[] fileBytes)
         {
             using (var aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes("16-char-key-1234"); // 16-byte key
-                aes.IV = new byte[16]; // Secure IV (replace in production)
+                aes.Key = Encoding.UTF8.GetBytes("16-char-key-1234");
+                aes.IV = new byte[16];
                 using (var ms = new MemoryStream())
                 using (var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
                 {

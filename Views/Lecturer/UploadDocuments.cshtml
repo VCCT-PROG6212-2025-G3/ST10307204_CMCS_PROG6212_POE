@@ -1,73 +1,113 @@
 ﻿@model List<ClaimModel>
-@{
+    @{
     ViewData["Title"] = "Upload Documents";
     var selectedClaimId = TempData["SelectedClaimId"] as int?;
-    var selectedClaim = selectedClaimId.HasValue ? Model.FirstOrDefault(c => c.ClaimId == selectedClaimId) : null;
-}
+    var selectedClaim = selectedClaimId.HasValue && selectedClaimId > 0 ? Model.FirstOrDefault(c => c.ClaimId == selectedClaimId) : null;
+    var isPlaceholderSelected = selectedClaimId == null;
+    }
 
-<div class="row g-4">
-    <div class="col-md-12">
-        @if (TempData["SuccessMessage"] != null)
-        {
+    <div class="row g-4">
+        <div class="col-md-12">
+            @if (TempData["SuccessMessage"] != null)
+            {
             <div class="alert alert-success d-flex align-items-center shadow-sm" role="alert">
                 <i class="fas fa-check-circle me-2 fs-5"></i>
                 <div>@TempData["SuccessMessage"]</div>
             </div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
             <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
                 <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
                 <div>@TempData["ErrorMessage"]</div>
             </div>
-        }
+            }
 
-        <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
-            <i class="fas fa-info-circle me-2 fs-5"></i>
-            <div>
-                <strong>Welcome back, John Doe!</strong> <br>
-                Upload supporting documents for your pending claims.
+            <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-info-circle me-2 fs-5"></i>
+                <div>
+                    <strong>Upload supporting documents for your pending claims!</strong> 
+                    
+                </div>
             </div>
-        </div>
 
-        <div class="card shadow-sm">
-            <div class="card-header bg-info text-white">
-                <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Supporting Documents</h4>
-            </div>
-            <div class="card-body">
-                <form asp-action="UploadDocuments" method="post" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><i class="fas fa-list me-1"></i> Select Pending Claim</label>
-                        <select name="claimId" class="form-control" onchange="this.form.submit()">
-                            @foreach (var claim in Model)
-                            {
-                                <option value="@claim.ClaimId" selected="@(selectedClaimId == claim.ClaimId)">@claim.Lecturer.FirstName @claim.Lecturer.LastName (Hours: @claim.HoursWorked)</option>
-                            }
-                        </select>
-                    </div>
-                    <input type="file" name="files" class="form-control mb-3" multiple accept=".pdf,.docx,.xlsx">
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
-                        <i class="fas fa-cloud-upload-alt me-2"></i> Upload Files
-                    </button>
-                    <small class="text-muted d-block mb-2">Accepted: PDF, DOCX, XLSX (Max 10MB total per claim)</small>
-                    <hr>
-                    <p class="mb-1 fw-bold">Uploaded Files:</p>
-                    @if (selectedClaim != null && selectedClaim.Documents.Any())
-                    {
-                        <div>
-                            @foreach (var doc in selectedClaim.Documents)
-                            {
-                                <span class="badge bg-secondary rounded-pill px-3 py-2 me-2">@doc.FileName</span>
-                            }
-                            <p class="text-muted mt-2">Total Size: @((selectedClaim.Documents.Sum(d => d.FileSize) / 1024.0 / 1024.0).ToString("0.##")) MB</p>
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Supporting Documents</h4>
+                </div>
+                <div class="card-body">
+                    <form id="uploadForm" action="/Lecturer/UploadDocuments" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"><i class="fas fa-list me-1"></i> Select Pending Claim <i class="fas fa-caret-down ms-1"></i></label>
+                            <select id="claimId" name="claimId" class="form-control">
+                                <option value="-1">Select an option</option>
+                                @foreach (var claim in Model)
+                                {
+                                if (selectedClaimId == claim.ClaimId)
+                                {
+                                <option value="@claim.ClaimId" selected>@claim.Lecturer.FirstName @claim.Lecturer.LastName (Hours: @claim.HoursWorked)</option>
+                                }
+                                else
+                                {
+                                <option value="@claim.ClaimId">@claim.Lecturer.FirstName @claim.Lecturer.LastName (Hours: @claim.HoursWorked)</option>
+                                }
+                                }
+                            </select>
                         </div>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary rounded-pill px-3 py-2">No documents yet</span>
-                    }
-                </form>
+                        <input type="file" name="files" class="form-control mb-3" multiple accept=".pdf,.docx,.xlsx">
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-cloud-upload-alt me-2"></i> Upload Files
+                        </button>
+                        <small class="text-muted d-block mb-2">Accepted: PDF, DOCX, XLSX (Max 10MB total per claim)</small>
+                        <hr>
+                        <p class="mb-1 fw-bold">Uploaded Files:</p>
+                        <div id="uploadedFiles">
+                            @if (selectedClaim != null && selectedClaim.Documents.Any())
+                            {
+                            <div>
+                                @foreach (var doc in selectedClaim.Documents)
+                                {
+                                <span class="badge bg-secondary rounded-pill px-3 py-2 me-2">@doc.FileName</span>
+                                }
+                                <p class="text-muted mt-2">Total Size: @((selectedClaim.Documents.Sum(d => d.FileSize) / 1024.0 / 1024.0).ToString("0.##")) MB</p>
+                            </div>
+                            }
+                            else
+                            {
+                            <span class="badge bg-secondary rounded-pill px-3 py-2">No documents yet</span>
+                            }
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <script>
+        function updateDisplay() {
+            var claimId = document.getElementById('claimId').value;
+            var uploadedFilesDiv = document.getElementById('uploadedFiles');
+            if (claimId === "-1") {
+                uploadedFilesDiv.innerHTML = '<span class="badge bg-secondary rounded-pill px-3 py-2">No documents yet</span>';
+            } else {
+                fetch('/Lecturer/GetClaimDocuments?claimId=' + claimId)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.text();
+                    })
+                    .then(html => {
+                        uploadedFilesDiv.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching documents:', error);
+                        uploadedFilesDiv.innerHTML = '<span class="badge bg-secondary rounded-pill px-3 py-2">Error loading documents</span>';
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var select = document.getElementById('claimId');
+            select.addEventListener('change', updateDisplay);
+            updateDisplay(); // Initial load
+        });
+    </script>
