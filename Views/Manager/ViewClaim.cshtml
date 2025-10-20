@@ -42,7 +42,14 @@
                             <ul class="list-group">
                                 @foreach (var doc in Model.Documents)
                                 {
-                                    <li class="list-group-item">@doc.FileName (<small>@(doc.FileSize / 1024) KB</small>)</li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        @doc.FileName (<small>@(doc.FileSize / 1024) KB</small>)
+                                        <div>                         
+                                            <a href="@Url.Action("GetDocument", "Manager", new { claimId = Model.ClaimId, fileName = doc.FileName })" class="btn btn-secondary btn-sm" download>
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                        </div>
+                                    </li>
                                 }
                             </ul>
                         }

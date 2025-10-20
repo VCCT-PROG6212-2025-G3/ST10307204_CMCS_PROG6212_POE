@@ -4,12 +4,15 @@ using System.Text;
 using CMCS_PROG6212_POE.Data;
 using CMCS_PROG6212_POE.Models;
 using Microsoft.AspNetCore.Mvc;
-
+ using System.Linq;
 
 namespace CMCS_PROG6212_POE.Controllers
 {
+
     public class LecturerController : Controller
     {
+        private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
         public IActionResult Index() => View();
         public IActionResult SubmitClaim() => View(new ClaimModel());
         [HttpPost]
@@ -66,6 +69,11 @@ namespace CMCS_PROG6212_POE.Controllers
 
             if (files != null && files.Any())
             {
+                if (!Directory.Exists(_uploadPath))
+                {
+                    Directory.CreateDirectory(_uploadPath);
+                }
+
                 foreach (var file in files.Where(f => f != null && f.Length > 0))
                 {
                     try
@@ -78,6 +86,8 @@ namespace CMCS_PROG6212_POE.Controllers
                                 var fileBytes = memoryStream.ToArray();
                                 var encryptedBytes = EncryptFile(fileBytes);
                                 var encryptedFileName = $"encrypted_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                                var filePath = Path.Combine(_uploadPath, encryptedFileName);
+                                System.IO.File.WriteAllBytes(filePath, encryptedBytes);
                                 claim.Documents.Add(new DocumentModel
                                 {
                                     FileName = file.FileName,
@@ -113,25 +123,6 @@ namespace CMCS_PROG6212_POE.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult GetClaimDocuments(int claimId)
-        {
-            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
-            if (claim != null && claim.Documents.Any())
-            {
-                var html = new StringBuilder();
-                html.Append("<div>");
-                foreach (var doc in claim.Documents)
-                {
-                    html.Append($"<span class='badge bg-secondary rounded-pill px-3 py-2 me-2'>{doc.FileName}</span>");
-                }
-                html.Append($"<p class='text-muted mt-2'>Total Size: {((double)claim.Documents.Sum(d => d.FileSize) / 1024 / 1024).ToString("0.##")} MB</p>");
-                html.Append("</div>");
-                return Content(html.ToString(), "text/html");
-            }
-            return Content("<span class='badge bg-secondary rounded-pill px-3 py-2'>No documents yet</span>", "text/html");
-        }
-
         private byte[] EncryptFile(byte[] fileBytes)
         {
             using (var aes = Aes.Create())
@@ -146,6 +137,31 @@ namespace CMCS_PROG6212_POE.Controllers
                     return ms.ToArray();
                 }
             }
+        }
+
+        [HttpGet]
+        public IActionResult GetClaimDocuments(int claimId)
+        {
+            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
+            if (claim == null)
+            {
+                return Content("<span class='badge bg-secondary rounded-pill px-3 py-2'>No documents or claim not found</span>");
+            }
+
+            if (!claim.Documents.Any())
+            {
+                return Content("<span class='badge bg-secondary rounded-pill px-3 py-2'>No documents yet</span>");
+            }
+
+            var html = new StringBuilder();
+            html.Append("<div>");
+            foreach (var doc in claim.Documents)
+            {
+                html.Append($"<span class='badge bg-secondary rounded-pill px-3 py-2 me-2'>{doc.FileName}</span>");
+            }
+            html.Append($"<p class='text-muted mt-2'>Total Size: {((claim.Documents.Sum(d => d.FileSize) / 1024.0 / 1024.0).ToString("0.##"))} MB</p>");
+            html.Append("</div>");
+            return Content(html.ToString(), "text/html");
         }
     }
 }

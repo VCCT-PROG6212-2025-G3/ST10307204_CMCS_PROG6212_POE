@@ -1,10 +1,17 @@
-﻿using CMCS_PROG6212_POE.Data;
+﻿using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using CMCS_PROG6212_POE.Data;
+using CMCS_PROG6212_POE.Helpers;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace CMCS_PROG6212_POE.Controllers
 {
     public class CoordinatorController : Controller
     {
+        private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
         public IActionResult Index()
         {
             var pendingClaims = DataStore.Claims.Where(c => c.Status == "Pending").ToList();
@@ -57,6 +64,43 @@ namespace CMCS_PROG6212_POE.Controllers
                 return RedirectToAction("Index");
             }
             return View(claim);
+        }
+
+        [HttpGet]
+        public IActionResult GetDocument(int claimId, string fileName)
+        {
+            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId);
+            if (claim == null)
+            {
+                return NotFound("Claim not found.");
+            }
+
+            var document = claim.Documents.FirstOrDefault(d => d.FileName == fileName);
+            if (document == null)
+            {
+                return NotFound("Document not found.");
+            }
+
+            var filePath = Path.Combine(_uploadPath, document.FilePath);
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("File not found on server.");
+            }
+
+            var encryptedBytes = System.IO.File.ReadAllBytes(filePath);
+            using (var aes = Aes.Create())
+            {
+                aes.Key = Encoding.UTF8.GetBytes("16-char-key-1234");
+                aes.IV = new byte[16];
+                using (var ms = new MemoryStream())
+                using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+                {
+                    cs.Write(encryptedBytes, 0, encryptedBytes.Length);
+                    cs.Close();
+                    var decryptedBytes = ms.ToArray();
+                    return File(decryptedBytes, MimeTypes.GetMimeType(fileName), fileName);
+                }
+            }
         }
     }
 }

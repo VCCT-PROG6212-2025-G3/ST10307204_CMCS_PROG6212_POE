@@ -23,9 +23,10 @@
                 {
                     <div class="mb-3">
                         <p><strong>Claim ID:</strong> @claim.ClaimId</p>
+                        <p><strong>Lecturer Full Name:</strong> @claim.Lecturer.FirstName @claim.Lecturer.LastName</p>
                         <div class="progress mb-3" style="height: 25px;">
                             <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
-                                 role="progressbar" style="width: @(claim.Status == "Approved" ? 100 : claim.Status == "Rejected" ? 50 : 25)%">
+                                 role="progressbar" style="width: @(claim.Status == "Approved" ? 100 : claim.Status== "Verified" ? 75 : claim.Status == "Rejected" ? 50 : 25)%">
                                 @claim.Status
                             </div>
                         </div>
