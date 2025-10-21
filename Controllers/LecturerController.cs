@@ -5,13 +5,19 @@ using CMCS_PROG6212_POE.Data;
 using CMCS_PROG6212_POE.Models;
 using Microsoft.AspNetCore.Mvc;
  using System.Linq;
+using CMCS_PROG6212_POE.Interfaces;
 
 namespace CMCS_PROG6212_POE.Controllers
 {
-
     public class LecturerController : Controller
     {
+        private readonly IDataStore _dataStore;
         private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+        public LecturerController(IDataStore dataStore)
+        {
+            _dataStore = dataStore;
+        }
 
         public IActionResult Index() => View();
         public IActionResult SubmitClaim() => View(new ClaimModel());
@@ -22,8 +28,7 @@ namespace CMCS_PROG6212_POE.Controllers
 
             if (ModelState.IsValid)
             {
-                model.ClaimId = DataStore.Claims.Count + 1;
-                DataStore.Claims.Add(model);
+                _dataStore.AddClaim(model);
                 TempData["SuccessMessage"] = "Claim submitted successfully!";
                 return RedirectToAction("Index");
             }
@@ -31,17 +36,17 @@ namespace CMCS_PROG6212_POE.Controllers
             TempData["ErrorMessage"] = "Error submitting claim: " + string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
             return View(model);
         }
-        public IActionResult TrackClaims() => View(DataStore.Claims);
+        public IActionResult TrackClaims() => View(_dataStore.Claims);
         public IActionResult UploadDocuments()
         {
-            var pendingClaims = DataStore.Claims.Where(c => c.Status == "Pending").ToList();
-            TempData["SelectedClaimId"] = null; // Default to no selection on load
+            var pendingClaims = _dataStore.Claims.Where(c => c.Status == "Pending").ToList();
+            TempData["SelectedClaimId"] = null;
             return View(pendingClaims);
         }
         [HttpPost]
         public IActionResult UploadDocuments(int claimId, List<IFormFile> files)
         {
-            if (claimId == -1) // Placeholder selection
+            if (claimId == -1)
             {
                 TempData.Remove("SuccessMessage");
                 TempData.Remove("ErrorMessage");
@@ -49,7 +54,7 @@ namespace CMCS_PROG6212_POE.Controllers
                 return RedirectToAction("UploadDocuments");
             }
 
-            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
+            var claim = _dataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
             if (claim == null)
             {
                 TempData["ErrorMessage"] = "Invalid or non-pending claim.";
@@ -142,7 +147,7 @@ namespace CMCS_PROG6212_POE.Controllers
         [HttpGet]
         public IActionResult GetClaimDocuments(int claimId)
         {
-            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
+            var claim = _dataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Pending");
             if (claim == null)
             {
                 return Content("<span class='badge bg-secondary rounded-pill px-3 py-2'>No documents or claim not found</span>");

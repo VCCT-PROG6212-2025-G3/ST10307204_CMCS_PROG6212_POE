@@ -1,25 +1,32 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using CMCS_PROG6212_POE.Data;
-using Microsoft.AspNetCore.Mvc;
 using CMCS_PROG6212_POE.Helpers;
+using CMCS_PROG6212_POE.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
 namespace CMCS_PROG6212_POE.Controllers
 {
     public class ManagerController : Controller
     {
-        private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        private readonly IDataStore _dataStore;
+        public readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+        public ManagerController(IDataStore dataStore)
+        {
+            _dataStore = dataStore;
+        }
 
         public IActionResult Index()
         {
-            var pendingClaims = DataStore.Claims.Where(c => c.Status == "Verified").ToList();
+            var pendingClaims = _dataStore.Claims.Where(c => c.Status == "Verified").ToList();
             return View(pendingClaims);
         }
 
         [HttpPost]
         public IActionResult Index(int claimId, string action)
         {
-            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId);
+            var claim = _dataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId);
             if (claim != null)
             {
                 claim.Approval.ManagerId = 1; // Mock ID
@@ -44,7 +51,7 @@ namespace CMCS_PROG6212_POE.Controllers
                 return RedirectToAction("Index");
             }
             TempData["ErrorMessage"] = "Claim not found.";
-            return View(DataStore.Claims.Where(c => c.Status == "Verified").ToList());
+            return View(_dataStore.Claims.Where(c => c.Status == "Verified").ToList());
         }
 
         public IActionResult ViewClaim()
@@ -56,7 +63,7 @@ namespace CMCS_PROG6212_POE.Controllers
                 return RedirectToAction("Index");
             }
 
-            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Verified");
+            var claim = _dataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Verified");
             if (claim == null)
             {
                 TempData["ErrorMessage"] = "Claim not found or not verified.";
@@ -68,7 +75,7 @@ namespace CMCS_PROG6212_POE.Controllers
         [HttpGet]
         public IActionResult GetDocument(int claimId, string fileName)
         {
-            var claim = DataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId);
+            var claim = _dataStore.Claims.FirstOrDefault(c => c.ClaimId == claimId);
             if (claim == null)
             {
                 return NotFound("Claim not found.");

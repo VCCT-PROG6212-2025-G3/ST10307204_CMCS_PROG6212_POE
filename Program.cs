@@ -1,3 +1,6 @@
+using CMCS_PROG6212_POE.Data;
+using CMCS_PROG6212_POE.Interfaces;
+
 namespace CMCS_PROG6212_POE
 {
     public class Program
@@ -8,6 +11,8 @@ namespace CMCS_PROG6212_POE
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<IDataStore, DataStore>();
+
 
             var app = builder.Build();
 

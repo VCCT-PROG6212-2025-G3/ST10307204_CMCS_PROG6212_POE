@@ -1,14 +1,21 @@
-﻿    using System.Collections.Generic;
-    using CMCS_PROG6212_POE.Models;
+﻿using System.Collections.Generic;
+using CMCS_PROG6212_POE.Models;
+using CMCS_PROG6212_POE.Interfaces;
 
 namespace CMCS_PROG6212_POE.Data
 {
-   
 
-    public static class DataStore
+
+    public class DataStore : IDataStore
     {
-        public static List<ClaimModel> Claims { get; set; } = new List<ClaimModel>();
-        public static List<DocumentModel> Documents { get; set; } = new List<DocumentModel>();
-        public static List<ApprovalModel> Approvals { get; set; } = new List<ApprovalModel>();
+        private readonly List<ClaimModel> _claims = new();
+
+        public List<ClaimModel> Claims => _claims;
+
+        public void AddClaim(ClaimModel claim)
+        {
+            claim.ClaimId = _claims.Count + 1;
+            _claims.Add(claim);
+        }
     }
 }
