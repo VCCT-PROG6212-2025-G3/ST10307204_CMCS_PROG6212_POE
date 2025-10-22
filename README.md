@@ -148,7 +148,8 @@ Link: [[https://youtu.be/at8f8LEIlik](https://youtu.be/at8f8LEIlik)]
 - Microsoft (2024) *System.Security.Cryptography.Aes Class*. Available at: https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.aes (Accessed: 22 October 2025).  
 - Troelsen, A. and Japikse, P. (2021) *Pro C# 10 with .NET 6*. Apress.  
 - xUnit.net (2024) *xUnit Documentation*. Available at: https://xunit.net (Accessed: 22 October 2025).  
-- Moq (2024) *Moq Framework*. Available at: https://github.com/moq/moq (Accessed: 22 October 2025).  
+- Moq (2024) *Moq Framework*. Available at: https://github.com/moq/moq (Accessed: 22 October 2025).
+- Grok (2025) AI Assistant for Software Development and Debugging. Developed by xAI. Available at: https://grok.x.ai (Accessed: 22 October 2025). 
 
 ---
 
