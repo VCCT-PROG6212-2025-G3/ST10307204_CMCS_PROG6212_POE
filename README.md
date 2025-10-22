@@ -1,7 +1,9 @@
 
 # CMCS – Contract Monthly Claim System  
 **PROG6212 POE – Part 2  README File**  
-*Streamlining claim submission, verification, and approval for independent contractor lecturers*
+*Streamlining claim submission, verification, and approval for independent contractor lecturers. *
+**GitHub Link to my Repo:
+&nbsp;https://github.com/VCCT-PROG6212-2025-G3/ST10307204_CMCS_PROG6212_POE**
 
 ---
 
