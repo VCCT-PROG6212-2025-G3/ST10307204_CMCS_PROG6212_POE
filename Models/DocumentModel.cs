@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CMCS_PROG6212_POE.Models;
 
 public class DocumentModel
 {
     public int DocumentId { get; set; }
     public int ClaimId { get; set; }
+    public ClaimModel Claim { get; set; }
+
     [Required]
     public string FileName { get; set; }
     public string FilePath { get; set; }
