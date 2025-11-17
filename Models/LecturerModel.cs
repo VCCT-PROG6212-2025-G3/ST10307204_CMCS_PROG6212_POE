@@ -1,16 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-public class LecturerModel
+namespace CMCS_PROG6212_POE.Models
 {
-    public int LecturerId { get; set; }
-    [Required]
-    public string FirstName { get; set; }
-    [Required]
-    public string LastName { get; set; }
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-    [Required]
-    [Range(0, 9999.99)]
-    public decimal HourlyRate { get; set; }
+    public class LecturerModel
+    {
+        [Key]
+        public int LecturerId { get; set; }
+
+        [Required]
+        [ForeignKey("User")]
+        public int UserId { get; set; }
+
+        public User User { get; set; } = null!;
+
+        [Required]
+        [Range(100, 1000)]
+        public decimal HourlyRate { get; set; }
+    }
 }

@@ -1,33 +1,36 @@
 ﻿// Models/User.cs
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace CMCS_PROG6212_POE.Models
 {
     public class User
     {
-        public int Id { get; set; }
+        [Key]
+        public int UserId { get; set; }
 
         [Required]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
         [Required]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string PasswordHash { get; set; }  // Store hashed password
+        public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
         public UserRole Role { get; set; }
 
-        public decimal? HourlyRate { get; set; }  // Only for Lecturers
+        // One-to-one relationships
+        public LecturerModel? Lecturer { get; set; }
+        public CoordinatorModel? Coordinator { get; set; }
+        public ManagerModel? Manager { get; set; }
+        public HRModel? HR { get; set; }
 
-        // Navigation
-        public ICollection<ClaimModel> Claims { get; set; } = new List<ClaimModel>();
+        public List<ClaimModel> Claims { get; set; } = new List<ClaimModel>();
     }
 
     public enum UserRole

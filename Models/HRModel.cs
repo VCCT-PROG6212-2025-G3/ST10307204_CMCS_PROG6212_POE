@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMCS_PROG6212_POE.Models
 {
-    public class CoordinatorModel
+    public class HRModel
     {
         [Key]
-        public int CoordinatorId { get; set; }
+        public int HRId { get; set; }
 
         [Required]
         [ForeignKey("User")]
