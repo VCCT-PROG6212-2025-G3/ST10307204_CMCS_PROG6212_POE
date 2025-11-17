@@ -29,8 +29,8 @@ namespace CMCS_PROG6212_POE
             // Initialize DB
             using (var scope = app.Services.CreateScope())
             {
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.EnsureCreated(); // Creates DB + seeds
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();             
+                db.Database.EnsureCreated(); // 
             }
 
             if (!app.Environment.IsDevelopment())

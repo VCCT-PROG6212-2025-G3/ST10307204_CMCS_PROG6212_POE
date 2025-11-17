@@ -80,7 +80,7 @@ namespace CMCS_PROG6212_POE.Controllers
                 };
 
                 _db.Users.Add(newUser);
-                _db.SaveChanges(); // UserId is now generated
+                _db.SaveChanges();
 
                 var lecturer = new LecturerModel
                 {
@@ -90,8 +90,9 @@ namespace CMCS_PROG6212_POE.Controllers
                 _db.Lecturers.Add(lecturer);
                 _db.SaveChanges();
 
-                TempData["Success"] = $"Lecturer {model.FirstName} {model.LastName} added successfully!";
-                return RedirectToAction("Users");
+                // SUCCESS MESSAGE + REDIRECT TO HR DASHBOARD
+                TempData["Success"] = $"Lecturer {model.FirstName} {model.LastName} has been added successfully!";
+                return RedirectToAction("Index");  // This goes to HR/Index
             }
 
             return View(model);

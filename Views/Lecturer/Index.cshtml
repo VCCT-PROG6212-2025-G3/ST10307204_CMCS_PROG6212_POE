@@ -1,46 +1,48 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Lecturer Dashboard";
 }
 
-<div class="row g-4">
-    <div class="col-md-12">
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success d-flex align-items-center shadow-sm" role="alert">
-                <i class="fas fa-check-circle me-2 fs-5"></i>
-                <div>@TempData["SuccessMessage"]</div>
-            </div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
-                <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
-                <div>@TempData["ErrorMessage"]</div>
-            </div>
-        }
-        <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
-            <i class="fas fa-info-circle me-2 fs-5"></i>
-            <div>
-                <strong>Manage your claims and track their status!</strong>
+<div class="text-center py-5">
+    <h1 class="display-5 fw-bold text-primary mb-4">
+        <i class="fas fa-chalkboard-teacher me-3"></i>Welcome, @Context.Session.GetString("FullName")!
+    </h1>
+    <p class="lead text-muted">Manage and track your monthly claims with ease.</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0 h-100 text-center hover-lift">
+            <div class="card-body p-5">
+                <i class="fas fa-file-invoice-dollar text-success fa-4x mb-4"></i>
+                <h4>Submit New Claim</h4>
+                <p class="text-muted">Create a new claim with drag & drop document upload</p>
+                <a asp-action="SubmitClaim" class="btn btn-success btn-lg mt-3">
+                    <i class="fas fa-plus-circle me-2"></i> New Claim
+                </a>
             </div>
         </div>
-
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Lecturer Dashboard</h4>
-            </div>
-            <div class="card-body text-center">
-                <a href="@Url.Action("SubmitClaim", "Lecturer")" class="btn btn-success btn-lg m-2">
-                    <i class="fas fa-file-invoice me-2"></i> Submit New Claim
-                </a>
-                <a href="@Url.Action("TrackClaims", "Lecturer")" class="btn btn-info btn-lg m-2">
-                    <i class="fas fa-chart-bar me-2"></i> Track Claims
-                </a>
-                <a href="@Url.Action("UploadDocuments", "Lecturer")" class="btn btn-outline-secondary btn-lg m-2">
-                    <i class="fas  fa-upload me-2"></i> Upload Suporting Documents
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0 h-100 text-center hover-lift">
+            <div class="card-body p-5">
+                <i class="fas fa-list-alt text-info fa-4x mb-4"></i>
+                <h4>My Claims</h4>
+                <p class="text-muted">View all your submitted claims and their status</p>
+                <a asp-action="TrackClaim" class="btn btn-info btn-lg mt-3">
+                    <i class="fas fa-eye me-2"></i> View Claims
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .hover-lift:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+        }
+</style>

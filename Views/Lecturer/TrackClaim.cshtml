@@ -1,0 +1,97 @@
+﻿@model List<ClaimModel> 
+@{
+    ViewData["Title"] = "My Claims";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary">
+        <i class="fas fa-clipboard-list me-3"></i> My Claim History
+    </h1>
+    <p class="lead text-muted">Track the real-time status of all your submitted claims</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
+        <h3>No claims submitted yet</h3>
+        <a asp-action="SubmitClaim" class="btn btn-success btn-lg mt-3">
+            <i class="fas fa-plus-circle me-2"></i> Submit Your First Claim
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var claim in Model.OrderByDescending(c => c.SubmittedDate))
+        {
+            var statusColor = claim.Status switch
+            {
+                "Approved" => "success",
+                "Verified" => "info",
+                "Rejected" => "danger",
+                _ => "warning"
+            };
+
+            var progress = claim.Status switch
+            {
+                "Pending" => 25,
+                "Verified" => 65,
+                "Approved" => 100,
+                "Rejected" => 100,
+                _ => 25
+            };
+
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100 border-start border-4 border-@statusColor">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">Claim #@claim.ClaimId</h5>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    @claim.SubmittedDate.ToString("dddd, dd MMMM yyyy")
+                                </small>
+                            </div>
+                            <span class="badge bg-@statusColor fs-6 px-3 py-2">@claim.Status</span>
+                        </div>
+
+                        <div class="row text-center mb-4">
+                            <div class="col-4">
+                                <strong>@claim.HoursWorked</strong><br><small class="text-muted">Hours</small>
+                            </div>
+                            <div class="col-4">
+                                <strong>R @claim.HourlyRate.ToString("N2")</strong><br><small class="text-muted">Rate</small>
+                            </div>
+                            <div class="col-4">
+                                <strong class="text-primary">R @claim.TotalAmount.ToString("N2")</strong><br><small class="text-muted">Total</small>
+                            </div>
+                        </div>
+
+                        <div class="progress" style="height: 28px;">
+                            <div class="progress-bar bg-@statusColor progress-bar-striped progress-bar-animated"
+                                 style="width: @progress%">
+                                <strong>@claim.Status</strong>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(claim.Notes))
+                        {
+                            <div class="mt-3">
+                                <small class="text-muted"><i class="fas fa-sticky-note me-1"></i> Notes:</small>
+                                <p class="mb-0 small">@claim.Notes</p>
+                            </div>
+                        }
+
+                        @if (claim.Documents.Any())
+                        {
+                            <div class="mt-3">
+                                <small class="text-muted"><i class="fas fa-paperclip me-1"></i> @claim.Documents.Count document(s) attached</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

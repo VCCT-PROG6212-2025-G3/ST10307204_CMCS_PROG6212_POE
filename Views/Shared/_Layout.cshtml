@@ -3,143 +3,207 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CMCS Prototype - @ViewData["Title"]</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <title>CMCS - @ViewData["Title"]</title>
+
+    <!-- Bootstrap 5 + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --info-gradient: linear-gradient(135deg, #43cea2 0%, #18d2ae 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
         body {
-            background-color: #f4f6f9;
-            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #f0f2f5, #ffffff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
 
         .navbar {
-            background: linear-gradient(90deg, #2c3e50, #34495e);
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 0.8rem 0;
         }
 
         .navbar-brand {
-            font-weight: bold;
+            font-weight: 800;
+            font-size: 1.8rem;
             letter-spacing: 1px;
         }
 
         .nav-link {
-            transition: 0.3s;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-radius: 50px;
+            padding: 0.5rem 1.2rem !important;
         }
 
             .nav-link:hover {
-                color: #f1c40f !important;
+                background: rgba(255,255,255,0.2);
+                transform: translateY(-2px);
             }
 
+        .user-greeting {
+            background: rgba(255,255,255,0.15);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            backdrop-filter: blur(10px);
+        }
+
         .hero {
-            padding: 80px 0;
-            background: linear-gradient(120deg, #2980b9, #6dd5fa, #ffffff);
-            color: #fff;
+            padding: 100px 0;
+            background: var(--primary-gradient);
+            color: white;
             text-align: center;
-            border-radius: 0 0 50px 50px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 0 0 60px 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
 
             .card:hover {
-                transform: translateY(-5px);
+                transform: translateY(-10px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             }
 
-        .feature-icon {
-            font-size: 2.5rem;
-            color: #3498db;
-            margin-bottom: 15px;
+        .btn-primary {
+            background: var(--success-gradient);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
         }
 
-        .btn-lg {
-            border-radius: 30px;
-            padding: 12px 25px;
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
         }
 
-        .progress {
-            height: 20px;
-            border-radius: 10px;
+        .btn-info {
+            background: var(--info-gradient);
+            border: none;
         }
 
-        .table th {
-            background-color: #2c3e50;
-            color: #fff;
+        .btn-warning {
+            background: var(--warning-gradient);
+            border: none;
         }
 
-        .table-hover tbody tr:hover {
-            background-color: #f9fbfd;
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            background: #2c3e50;
+            color: #ecf0f1;
         }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Dynamic Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid px-4">
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+            <a class="navbar-brand" href="/">
                 <i class="fas fa-university me-2"></i> CMCS
             </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
 
-                    @* Show only when user is logged in *@
                     @if (Context.Session.GetString("Role") != null)
                     {
-                        <li class="nav-item">
-                            <span class="navbar-text text-white me-4">
-                                <i class="fas fa-user-circle me-1"></i>
+                        <!-- User Greeting -->
+                        <li class="nav-item me-3">
+                            <span class="user-greeting text-white">
+                                <i class="fas fa-user-circle me-2"></i>
                                 @Context.Session.GetString("FullName")
-                                <small class="text-warning">(@Context.Session.GetString("Role"))</small>
+                                <small class="ms-2 badge bg-light text-dark">@Context.Session.GetString("Role")</small>
                             </span>
                         </li>
 
-                        @* LECTURER MENU *@
+                        <!-- LECTURER MENU -->
                         @if (Context.Session.GetString("Role") == "Lecturer")
                         {
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Lecturer")"><i class="fas fa-chalkboard-teacher me-1"></i> My Claims</a></li>
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("SubmitClaim", "Lecturer")"><i class="fas fa-plus-circle me-1"></i> Submit Claim</a></li>
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("UploadDocuments", "Lecturer")"><i class="fas fa-paperclip me-1"></i> Upload Docs</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="Index" asp-controller="Lecturer">
+                                    <i class="fas fa-home me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="SubmitClaim" asp-controller="Lecturer">
+                                    <i class="fas fa-plus-circle me-1"></i> New Claim
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="TrackClaim" asp-controller="Lecturer">
+                                    <i class="fas fa-list-alt me-1"></i> My Claims
+                                </a>
+                            </li>
                         }
 
-                        @* COORDINATOR MENU *@
+                        <!-- COORDINATOR MENU -->
                         @if (Context.Session.GetString("Role") == "Coordinator")
                         {
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Coordinator")"><i class="fas fa-clipboard-check me-1"></i> Verify Claims</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="Index" asp-controller="Coordinator">
+                                    <i class="fas fa-clipboard-check me-1"></i> Verify Claims
+                                </a>
+                            </li>
                         }
 
-                        @* MANAGER MENU *@
+                        <!-- MANAGER MENU -->
                         @if (Context.Session.GetString("Role") == "Manager")
                         {
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Manager")"><i class="fas fa-thumbs-up me-1"></i> Approve Claims</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="Index" asp-controller="Manager">
+                                    <i class="fas fa-thumbs-up me-1"></i> Approve Claims
+                                </a>
+                            </li>
                         }
 
-                        @* HR MENU *@
+                        <!-- HR MENU -->
                         @if (Context.Session.GetString("Role") == "HR")
                         {
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "HR")"><i class="fas fa-users-cog me-1"></i> Manage Users</a></li>
-                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Reports", "HR")"><i class="fas fa-chart-bar me-1"></i> Reports</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="Index" asp-controller="HR">
+                                    <i class="fas fa-home me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-action="AddLecturer" asp-controller="HR">
+                                    <i class="fas fa-users-cog me-1"></i> Add Lecturer
+                                </a>
+                            </li>
                         }
 
+                        <!-- Logout -->
                         <li class="nav-item ms-3">
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-warning btn-sm">
-                                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                <button type="submit" class="btn btn-outline-light btn-sm rounded-pill px-4">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
                                 </button>
                             </form>
                         </li>
                     }
                     else
                     {
-                        @* Not logged in – show Login link *@
+                        <!-- Not logged in -->
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Login", "Account")">
-                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            <a class="nav-link text-white" asp-controller="Account" asp-action="Login">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
                             </a>
                         </li>
                     }
@@ -148,31 +212,42 @@
         </div>
     </nav>
 
-    <div class="container my-5">
-        @* Success / Error Messages *@
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+        <div class="container py-4">
+            <!-- Alerts -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
 
-        @RenderBody()
-    </div>
+            @RenderBody()
+        </div>
+    </main>
 
-    <footer class="text-center py-4 mt-5 border-top bg-light">
-        <small>© @DateTime.Now.Year CMCS – Claim Management & Coordination System. All rights reserved.</small>
+    <!-- Footer -->
+    <footer class="mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">
+                © @DateTime.Now.Year <strong>CMCS</strong> – Claim Management & Coordination System
+                <br><small class="text-muted">Secure • Modern • Efficient</small>
+            </p>
+        </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

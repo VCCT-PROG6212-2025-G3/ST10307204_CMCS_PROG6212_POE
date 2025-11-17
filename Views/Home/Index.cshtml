@@ -2,101 +2,47 @@
     ViewData["Title"] = "Welcome to CMCS";
 }
 
-<section class="hero mb-5">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Streamline Your Monthly Claims</h1>
-        <p class="lead mb-4">A seamless platform for lecturers to submit claims and administrators to approve them efficiently.</p>
-        <a href="@Url.Action("Index", "Lecturer")" class="btn btn-light btn-lg me-3 shadow-sm">
-            <i class="fas fa-user-edit me-2"></i> Get Started as Lecturer
-        </a>
-        <a href="@Url.Action("Index", "Manager")" class="btn btn-warning btn-lg shadow-sm">
-            <i class="fas fa-lock me-2"></i> Manager Login
-        </a>       
-        <a href="@Url.Action("Index", "Coordinator")" class="btn btn-outline-secondary btn-lg me-3 shadow-sm">
-            <i class="fa-solid fa-user-secret"></i> Coordinator Login
-        </a>
-    </div>
-</section>
+<section class="hero text-center text-white">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">CMCS</h1>
+                <h2 class="display-5 mb-4">Claim Management & Coordination System</h2>
+                <p class="lead mb-5">A seamless, secure, and modern platform for lecturers to submit monthly claims and administrators to process them efficiently.</p>
 
-<!-- Features Section -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-5 fw-bold">Key Features</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <i class="fas fa-clock feature-icon"></i>
-                    <h5 class="fw-bold">Quick Submissions</h5>
-                    <p>Submit claims anytime with a single click.</p>
+                <div class="d-grid gap-3 d-sm-flex justify-content-center">
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-5 py-3 shadow-lg">
+                        <i class="fas fa-sign-in-alt me-3"></i> Login to Dashboard
+                    </a>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <i class="fas fa-upload feature-icon"></i>
-                    <h5 class="fw-bold">Document Upload</h5>
-                    <p>Securely attach supporting files effortlessly.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <i class="fas fa-chart-line feature-icon"></i>
-                    <h5 class="fw-bold">Real-Time Tracking</h5>
-                    <p>Monitor claim status transparently until settlement.</p>
+
+                <div class="mt-5">
+                    <small class="text-white-50">
+                        <i class="fas fa-shield-alt me-2"></i> Secure • Fast • User-Friendly
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Claims Record Dashboard -->
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center mb-5 fw-bold">Claims Record</h2>
-        <div class="row g-4">
+        <div class="row g-5 text-center">
             <div class="col-md-4">
-                <div class="card text-center shadow-sm border-primary">
-                    <div class="card-body">
-                        <i class="fas fa-list-alt feature-icon text-primary"></i>
-                        <h3>@ViewData["TotalClaims"]</h3>
-                        <p class="lead">Total Claims</p>
-                    </div>
-                </div>
+                <div class="feature-icon text-primary mb-3"><i class="fas fa-upload fa-3x"></i></div>
+                <h4>Easy Submission</h4>
+                <p>Submit claims with drag & drop document upload in one step.</p>
             </div>
             <div class="col-md-4">
-                <div class="card text-center shadow-sm border-warning">
-                    <div class="card-body">
-                        <i class="fas fa-hourglass-half feature-icon text-warning"></i>
-                        <h3>@ViewData["Unverified"]</h3>
-                        <p class="lead">Unverified (Pending)</p>
-                    </div>
-                </div>
+                <div class="feature-icon text-success mb-3"><i class="fas fa-check-double fa-3x"></i></div>
+                <h4>Smart Workflow</h4>
+                <p>Automated verification and approval with clear status tracking.</p>
             </div>
             <div class="col-md-4">
-                <div class="card text-center shadow-sm border-info">
-                    <div class="card-body">
-                        <i class="fas fa-check-double feature-icon text-info"></i>
-                        <h3>@ViewData["Verified"]</h3>
-                        <p class="lead">Verified (Awaiting Manager)</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mx-auto">
-                <div class="card text-center shadow-sm border-success">
-                    <div class="card-body">
-                        <i class="fas fa-check-circle feature-icon text-success"></i>
-                        <h3>@ViewData["Approved"]</h3>
-                        <p class="lead">Approved</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mx-auto">
-                <div class="card text-center shadow-sm border-danger">
-                    <div class="card-body">
-                        <i class="fas fa-times-circle feature-icon text-danger"></i>
-                        <h3>@ViewData["Rejected"]</h3>
-                        <p class="lead">Rejected</p>
-                    </div>
-                </div>
+                <div class="feature-icon text-info mb-3"><i class="fas fa-lock fa-3x"></i></div>
+                <h4>Secure & Private</h4>
+                <p>Bank-level encryption and role-based access control.</p>
             </div>
         </div>
     </div>

@@ -22,117 +22,107 @@ namespace CMCS_PROG6212_POE.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Claim belongs to a User
-            modelBuilder.Entity<ClaimModel>()
-                .HasOne(c => c.User)
-                .WithMany(u => u.Claims)
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // ========================= USERS =========================
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.UserId);
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.Property(u => u.Role).HasConversion<string>();
+            });
 
-            // 2. Document → Claim
-            modelBuilder.Entity<DocumentModel>()
-                .HasOne(d => d.Claim)
-                .WithMany(c => c.Documents)
-                .HasForeignKey(d => d.ClaimId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // 3. Approval → Claim (One-to-One)
-            modelBuilder.Entity<ApprovalModel>()
-                .HasOne(a => a.Claim)
-                .WithOne(c => c.Approval)
-                .HasForeignKey<ApprovalModel>(a => a.ClaimId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // 4. Approval → VerifiedBy / ApprovedBy (can be Coordinator or Manager)
-            modelBuilder.Entity<ApprovalModel>()
-                .HasOne(a => a.VerifiedBy)
-                .WithMany()
-                .HasForeignKey(a => a.VerifiedById)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<ApprovalModel>()
-                .HasOne(a => a.ApprovedBy)
-                .WithMany()
-                .HasForeignKey(a => a.ApprovedById)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // 5. One-to-One Relationships (User → Role-Specific Entity)
-            modelBuilder.Entity<HRModel>()
-                .HasOne(h => h.User)
-                .WithOne(u => u.HR)
-                .HasForeignKey<HRModel>(h => h.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<CoordinatorModel>()
-                .HasOne(c => c.User)
-                .WithOne(u => u.Coordinator)
-                .HasForeignKey<CoordinatorModel>(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<ManagerModel>()
-                .HasOne(m => m.User)
-                .WithOne(u => u.Manager)
-                .HasForeignKey<ManagerModel>(m => m.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<LecturerModel>()
-                .HasOne(l => l.User)
-                .WithOne(u => u.Lecturer)
+            // ========================= ONE-TO-ONE RELATIONSHIPS =========================
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Lecturer)
+                .WithOne(l => l.User)
                 .HasForeignKey<LecturerModel>(l => l.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 6. CRITICAL: Only Lecturers can submit claims → Enforce via DB constraint
-            modelBuilder.Entity<ClaimModel>()
-                .HasCheckConstraint("CK_Claim_Submitter_Role",
-                    "EXISTS (SELECT 1 FROM Users u WHERE u.UserId = UserId AND u.Role = 'Lecturer')");
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Coordinator)
+                .WithOne(c => c.User)
+                .HasForeignKey<CoordinatorModel>(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // 7. Seed Users (HR, Coordinator, Manager — no claims allowed)
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Manager)
+                .WithOne(m => m.User)
+                .HasForeignKey<ManagerModel>(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.HR)
+                .WithOne(h => h.User)
+                .HasForeignKey<HRModel>(h => h.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ========================= CLAIMS =========================
+            modelBuilder.Entity<ClaimModel>(entity =>
+            {
+                entity.HasKey(c => c.ClaimId);
+               
+                entity.HasOne(c => c.User)
+                      .WithMany(u => u.Claims)
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.Approval)
+                      .WithOne(a => a.Claim)
+                      .HasForeignKey<ApprovalModel>(a => a.ClaimId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========================= DOCUMENTS =========================
+            modelBuilder.Entity<DocumentModel>(entity =>
+            {
+                entity.HasKey(d => d.DocumentId);
+
+                entity.HasOne(d => d.Claim)
+                      .WithMany(c => c.Documents)
+                      .HasForeignKey(d => d.ClaimId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========================= APPROVALS — FIXED CASCADE CONFLICT =========================
+            modelBuilder.Entity<ApprovalModel>(entity =>
+            {
+                entity.HasKey(a => a.ApprovalId);
+
+                // These two MUST be RESTRICT to avoid cascade cycle
+                entity.HasOne(a => a.VerifiedBy)
+                      .WithMany()
+                      .HasForeignKey(a => a.VerifiedById)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.ApprovedBy)
+                      .WithMany()
+                      .HasForeignKey(a => a.ApprovedById)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ========================= SEED DATA =========================
             var hasher = new PasswordHasher<User>();
 
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    UserId = 1,
-                    FirstName = "HR",
-                    LastName = "Admin",
-                    Email = "hr@cmcs.com",
-                    PasswordHash = hasher.HashPassword(null!, "hr123"),
-                    Role = UserRole.HR
-                },
-                new User
-                {
-                    UserId = 2,
-                    FirstName = "Luis",
-                    LastName = "De Sousa",
-                    Email = "coordinator@cmcs.com",
-                    PasswordHash = hasher.HashPassword(null!, "coord123"),
-                    Role = UserRole.Coordinator
-                },
-                new User
-                {
-                    UserId = 3,
-                    FirstName = "Ligia",
-                    LastName = "Lorenzini",
-                    Email = "manager@cmcs.com",
-                    PasswordHash = hasher.HashPassword(null!, "mgr123"),
-                    Role = UserRole.Manager
-                }
-            );
+            var hr = new User { UserId = 1, FirstName = "HR", LastName = "Admin", Email = "hr@cmcs.com", Role = UserRole.HR };
+            hr.PasswordHash = hasher.HashPassword(hr, "hr123");
 
-            // 8. Seed Role-Specific Records
+            var coordinator = new User { UserId = 2, FirstName = "Luis", LastName = "Sousa", Email = "coordinator@cmcs.com", Role = UserRole.Coordinator };
+            coordinator.PasswordHash = hasher.HashPassword(coordinator, "coord123");
+
+            var manager = new User { UserId = 3, FirstName = "Ligia", LastName = "Lorenzini", Email = "manager@cmcs.com", Role = UserRole.Manager };
+            manager.PasswordHash = hasher.HashPassword(manager, "mgr123");
+
+            modelBuilder.Entity<User>().HasData(hr, coordinator, manager);
             modelBuilder.Entity<HRModel>().HasData(
-                new HRModel { HRId = 1, UserId = 1 }
+             new HRModel { HRId = -1, UserId = 1 }  // Negative ID = seed only
             );
 
             modelBuilder.Entity<CoordinatorModel>().HasData(
-                new CoordinatorModel { CoordinatorId = 1, UserId = 2 }
+                new CoordinatorModel { CoordinatorId = -2, UserId = 2 }
             );
 
             modelBuilder.Entity<ManagerModel>().HasData(
-                new ManagerModel { ManagerId = 1, UserId = 3 }
+                new ManagerModel { ManagerId = -3, UserId = 3 }
             );
-
-            // No Lecturer seeded yet — HR will create them later
         }
     }
 }
