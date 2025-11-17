@@ -10,61 +10,51 @@ namespace CMCS_PROG6212_POE.Controllers
     {
         private readonly AppDbContext _db;
 
-        public AccountController(AppDbContext db)
-        {
-            _db = db;
-        }
+        public AccountController(AppDbContext db) => _db = db;
 
-        // GET: /Account/Login
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
-        // POST: /Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Login(string email, string password)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                TempData["Error"] = "Email and password are required.";
+                TempData["Error"] = "Please enter email and password.";
                 return View();
             }
 
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
             {
-                TempData["Error"] = "Invalid email or password.";
+                TempData["Error"] = "Invalid credentials.";
                 return View();
             }
 
             var hasher = new PasswordHasher<User>();
             var result = hasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
-            if (result == PasswordVerificationResult.Failed)
+            if (result != PasswordVerificationResult.Success)
             {
-                TempData["Error"] = "Invalid email or password.";
+                TempData["Error"] = "Invalid credentials.";
                 return View();
             }
 
-            // Set Session
+            // Session login
             HttpContext.Session.SetInt32("UserId", user.UserId);
             HttpContext.Session.SetString("Role", user.Role.ToString());
             HttpContext.Session.SetString("FullName", $"{user.FirstName} {user.LastName}");
 
-            // Redirect by Role
             return user.Role switch
             {
-                UserRole.HR => RedirectToAction("Dashboard", "HR"),
-                UserRole.Lecturer => RedirectToAction("Dashboard", "Lecturer"),
-                UserRole.Coordinator => RedirectToAction("Dashboard", "Coordinator"),
-                UserRole.Manager => RedirectToAction("Dashboard", "Manager"),
+                UserRole.HR => RedirectToAction("Index", "HR"),
+                UserRole.Lecturer => RedirectToAction("Index", "Lecturer"),
+                UserRole.Coordinator => RedirectToAction("Index", "Coordinator"),
+                UserRole.Manager => RedirectToAction("Index", "Manager"),
                 _ => RedirectToAction("Login")
             };
         }
 
-        // GET: /Account/Logout
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

@@ -2,12 +2,14 @@
 using System.Security.Cryptography;
 using System.Text;
 using CMCS_PROG6212_POE.Data;
+using CMCS_PROG6212_POE.Filters;
 using CMCS_PROG6212_POE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CMCS_PROG6212_POE.Controllers
 {
+    [AuthorizeRole("Lecturer")]
     public class LecturerController : Controller
     {
         private readonly AppDbContext _db;

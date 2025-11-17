@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "HR Dashboard";
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5><i class="fas fa-users"></i> Lecturers</h5>
+                <h2>@ViewBag.TotalLecturers</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5><i class="fas fa-check-circle"></i> Approved Claims</h5>
+                <h2>@ViewBag.ApprovedClaims</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5><i class="fas fa-clock"></i> Pending</h5>
+                <h2>@ViewBag.PendingClaims</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5><i class="fas fa-file-invoice-dollar"></i> Total Claims</h5>
+                <h2>@ViewBag.TotalClaims</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-4">Recent Claims</h4>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Lecturer</th>
+            <th>Hours</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.User.FirstName @c.User.LastName</td>
+                <td>@c.HoursWorked</td>
+                <td>R @c.TotalAmount.ToString("N2")</td>
+                <td><span class="badge bg-@(c.Status == "Approved" ? "success" : c.Status == "Pending" ? "warning" : "danger")">@c.Status</span></td>
+                <td>@c.SubmittedDate.ToString("dd MMM yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

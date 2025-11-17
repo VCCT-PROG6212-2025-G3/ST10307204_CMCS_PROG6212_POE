@@ -1,11 +1,13 @@
 ﻿// Controllers/CoordinatorController.cs
 using CMCS_PROG6212_POE.Data;
+using CMCS_PROG6212_POE.Filters;
 using CMCS_PROG6212_POE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CMCS_PROG6212_POE.Controllers
 {
+    [AuthorizeRole("Coordinator")]
     public class CoordinatorController : Controller
     {
         private readonly AppDbContext _db;

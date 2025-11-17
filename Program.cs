@@ -22,6 +22,7 @@ namespace CMCS_PROG6212_POE
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
 
@@ -42,6 +43,7 @@ namespace CMCS_PROG6212_POE
             app.UseStaticFiles();
             app.UseRouting();
             app.UseSession();
+            app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
