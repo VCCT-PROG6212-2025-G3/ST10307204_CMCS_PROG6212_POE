@@ -1,0 +1,47 @@
+﻿@model List<LecturerModel>
+@{
+    ViewData["Title"] = "Manage Lecturers";
+}
+
+<h2 class="mb-4"><i class="fas fa-users"></i> Manage Lecturers</h2>
+
+<a asp-action="AddLecturer" class="btn btn-success mb-3">
+    <i class="fas fa-user-plus"></i> Add New Lecturer
+</a>
+
+<table class="table table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Hourly Rate</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var l in Model)
+        {
+            <tr>
+                <td>@l.User.FirstName @l.User.LastName</td>
+                <td>@l.User.Email</td>
+                <td>R @l.HourlyRate.ToString("N2")</td>
+                <td>
+                    <a asp-action="LecturerDetails" asp-route-id="@l.UserId"
+                       class="btn btn-info btn-sm me-2">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <a asp-action="EditLecturer" asp-route-id="@l.UserId" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form asp-action="DeleteLecturer" asp-route-id="@l.UserId" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Delete @l.User.FirstName @l.User.LastName?')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

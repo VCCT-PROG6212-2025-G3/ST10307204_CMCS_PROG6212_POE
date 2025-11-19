@@ -70,6 +70,20 @@ namespace CMCS_PROG6212_POE.Data
                       .HasForeignKey<ApprovalModel>(a => a.ClaimId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+            modelBuilder.Entity<ClaimModel>(entity =>
+            {
+                entity.Property(c => c.HoursWorked)
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(c => c.HourlyRate)
+                      .HasColumnType("decimal(18,2)");
+            });
+
+            modelBuilder.Entity<LecturerModel>(entity =>
+            {
+                entity.Property(l => l.HourlyRate)
+                      .HasColumnType("decimal(18,2)");
+            });
 
             // ========================= DOCUMENTS =========================
             modelBuilder.Entity<DocumentModel>(entity =>

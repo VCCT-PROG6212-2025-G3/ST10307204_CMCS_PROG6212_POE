@@ -72,6 +72,7 @@ namespace CMCS_PROG6212_POE.Controllers
             if (ModelState.IsValid)
             {
                 model.UserId = userId.Value;
+                model.HourlyRate = lecturer.HourlyRate; // Auto-fill from DB
                 model.Status = "Pending";
                 model.SubmittedDate = DateTime.Now;
                 model.Approval = new ApprovalModel();
@@ -85,6 +86,22 @@ namespace CMCS_PROG6212_POE.Controllers
 
             ViewBag.HourlyRate = lecturer.HourlyRate;
             return View(model);
+        }
+
+        // GET: Lecturer/TrackClaims
+        public IActionResult TrackClaim()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login", "Account");
+
+            var claims = _db.Claims
+                .Where(c => c.UserId == userId.Value)
+                .Include(c => c.Documents)
+                .OrderByDescending(c => c.SubmittedDate)
+                .ToList();
+
+            return View(claims);
         }
 
         // Upload supporting documents

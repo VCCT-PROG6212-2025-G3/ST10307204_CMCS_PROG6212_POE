@@ -9,17 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CMCS_PROG6212_POE.Controllers
 {
+    // Controllers/HRController.cs
     [AuthorizeRole("HR")]
     public class HRController : Controller
     {
         private readonly AppDbContext _db;
 
-        public HRController(AppDbContext db)
-        {
-            _db = db;
-        }
+        public HRController(AppDbContext db) => _db = db;
 
-        // Dashboard – Show stats + recent activity
         public IActionResult Index()
         {
             ViewBag.TotalLecturers = _db.Lecturers.Count();
@@ -36,24 +33,15 @@ namespace CMCS_PROG6212_POE.Controllers
             return View(recentClaims);
         }
 
-        // List all users (HR only)
-        public IActionResult Users()
+        public IActionResult Lecturers()
         {
-            var users = _db.Users
-                .Include(u => u.Lecturer)
-                .Include(u => u.Coordinator)
-                .Include(u => u.Manager)
-                .Include(u => u.HR)
+            var lecturers = _db.Lecturers
+                .Include(l => l.User)
                 .ToList();
-
-            return View(users);
+            return View(lecturers);
         }
 
-        // Add new Lecturer (only HR can do this)
-        public IActionResult AddLecturer()
-        {
-            return View(new AddLecturerViewModel());
-        }
+        public IActionResult AddLecturer() => View(new AddLecturerViewModel());
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -61,10 +49,9 @@ namespace CMCS_PROG6212_POE.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Check if email already exists
                 if (_db.Users.Any(u => u.Email == model.Email))
                 {
-                    ModelState.AddModelError("Email", "This email is already registered.");
+                    ModelState.AddModelError("Email", "Email already exists.");
                     return View(model);
                 }
 
@@ -90,25 +77,89 @@ namespace CMCS_PROG6212_POE.Controllers
                 _db.Lecturers.Add(lecturer);
                 _db.SaveChanges();
 
-                // SUCCESS MESSAGE + REDIRECT TO HR DASHBOARD
-                TempData["Success"] = $"Lecturer {model.FirstName} {model.LastName} has been added successfully!";
-                return RedirectToAction("Index");  // This goes to HR/Index
+                TempData["Success"] = $"Lecturer {model.FirstName} {model.LastName} added successfully!";
+                return RedirectToAction("Index");
             }
+            return View(model);
+        }
+        public IActionResult LecturerDetails(int id)
+        {
+            var lecturer = _db.Lecturers
+                .Include(l => l.User)
+                .FirstOrDefault(l => l.UserId == id);
 
+            if (lecturer == null) return NotFound();
+
+            return View(lecturer);
+        }
+
+        [HttpGet]
+        public IActionResult EditLecturer(int id)
+        {
+            var lecturer = _db.Lecturers.Include(l => l.User).FirstOrDefault(l => l.UserId == id);
+            if (lecturer == null) return NotFound();
+
+            var model = new AddLecturerViewModel
+            {
+                FirstName = lecturer.User.FirstName,
+                LastName = lecturer.User.LastName,
+                Email = lecturer.User.Email,
+                HourlyRate = lecturer.HourlyRate
+            };
+
+            ViewBag.UserId = id;
             return View(model);
         }
 
-        // View all claims (for reporting)
-        public IActionResult AllClaims()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditLecturer(int id, AddLecturerViewModel model)
         {
-            var claims = _db.Claims
-                .Include(c => c.User)
-                .Include(c => c.Documents)
-                .Include(c => c.Approval)
-                .OrderByDescending(c => c.SubmittedDate)
-                .ToList();
+            if (id <= 0) return NotFound();
 
-            return View(claims);
+            var lecturer = _db.Lecturers
+                .Include(l => l.User)
+                .FirstOrDefault(l => l.UserId == id);
+            if (lecturer == null) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                lecturer.User.FirstName = model.FirstName;
+                lecturer.User.LastName = model.LastName;
+                lecturer.User.Email = model.Email;
+                lecturer.HourlyRate = model.HourlyRate;
+
+                // Only update password if the field is not empty
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                {
+                    var hasher = new PasswordHasher<User>();
+                    lecturer.User.PasswordHash = hasher.HashPassword(lecturer.User, model.Password);
+                }
+
+                _db.SaveChanges();
+
+                TempData["Success"] = "Lecturer updated successfully!";
+                return RedirectToAction("Lecturers");
+            }
+
+            ViewBag.UserId = id;
+            return View(model);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteLecturer(int id)
+        {
+            var lecturer = _db.Lecturers.Include(l => l.User).FirstOrDefault(l => l.UserId == id);
+            if (lecturer != null)
+            {
+                _db.Users.Remove(lecturer.User); // Deletes both User + Lecturer (cascade)
+                _db.SaveChanges();
+                TempData["Success"] = "Lecturer deleted successfully.";
+            }
+            return RedirectToAction("Lecturers");
+        }
+
     }
 }

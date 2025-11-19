@@ -1,0 +1,75 @@
+﻿@model CMCS_PROG6212_POE.Models.ViewModels.AddLecturerViewModel
+
+@{
+    ViewData["Title"] = "Edit Lecturer";
+    var userId = ViewBag.UserId;
+}
+
+<h2 class="mb-4"> <i class="fas fa-edit"></i>Edit Lecturer</h2>
+
+<form asp-action="EditLecturer" asp-controller="HR" method="post" asp-route-id="@userId">
+    @Html.AntiForgeryToken()
+
+    @* Show validation summary or individual errors *@
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group mb-3">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" type="email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <div class="input-group">
+            <input asp-for="Password" class="form-control" id="passwordField" />
+            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                <i class="bi bi-eye" id="passwordIcon"></i>
+            </button>
+        </div>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group mb-3">
+        <label asp-for="HourlyRate"></label>
+        <input asp-for="HourlyRate" class="form-control" type="number" min="0" step="0.01" />
+        <span asp-validation-for="HourlyRate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save / Update</button>
+    <a asp-action="Lecturers" asp-controller="HR" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById("togglePassword").addEventListener("click", function () {
+            const passwordField = document.getElementById("passwordField");
+            const icon = document.getElementById("passwordIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}
