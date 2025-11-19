@@ -26,16 +26,26 @@
                             <div class="alert alert-danger">@TempData["Error"]</div>
                         }
 
-                        <form asp-action="Login" method="post">
+                        <form asp-action="Login" method="post" >
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" required />
+                                <input type="email"
+                                       name="email"
+                                       class="form-control"
+                                       autocomplete="new-email"
+                                       required />
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
                                 <div class="input-group">
-                                    <input type="password" name="password" class="form-control" id="passwordField" required />
+                                    <input type="password"
+                                           name="password"
+                                           class="form-control"
+                                           id="passwordField"
+                                           autocomplete="new-password"
+                                           required />
+
                                     <button type="button" class="btn btn-outline-secondary" id="togglePassword">
                                         <i class="bi bi-eye" id="passwordIcon"></i>
                                     </button>
