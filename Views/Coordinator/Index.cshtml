@@ -1,4 +1,5 @@
-﻿@model List<ClaimModel>
+﻿@model List<CMCS_PROG6212_POE.Models.ClaimModel>
+
 @{
     ViewData["Title"] = "Coordinator Dashboard";
     ViewBag.Role = "Coordinator";
@@ -67,3 +68,36 @@
         }
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="claimModal" tabindex="-1" aria-labelledby="claimModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="claimModalLabel">Claim Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="claimModalBody">
+                <p class="text-center">Loading claim details...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const claimModal = document.getElementById('claimModal');
+        claimModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const claimId = button.getAttribute('data-claim-id');
+            const modalBody = document.getElementById('claimModalBody');
+
+            modalBody.innerHTML = "<p class='text-center'>Fetching details...</p>";
+
+            fetch(`@Url.Action("GetClaimDetails", "Coordinator")?id=${claimId}`)
+                .then(res => res.text())
+                .then(html => modalBody.innerHTML = html)
+                .catch(err => modalBody.innerHTML = `<div class="alert alert-danger">Error loading claim: ${err}</div>`);
+        });
+    </script>
+}

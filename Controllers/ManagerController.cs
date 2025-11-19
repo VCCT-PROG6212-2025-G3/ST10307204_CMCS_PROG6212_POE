@@ -58,5 +58,35 @@ namespace CMCS_PROG6212_POE.Controllers
             _db.SaveChanges();
             return RedirectToAction("Index");
         }
+        [HttpGet]
+        public IActionResult GetClaimDetails(int id)
+        {
+            var claim = _db.Claims
+                .Include(c => c.User)
+                .Include(c => c.Documents)
+                .Include(c => c.Approval)
+                .FirstOrDefault(c => c.ClaimId == id);
+
+            if (claim == null)
+                return Content("<div class='alert alert-danger'>Claim not found.</div>");
+
+            return PartialView("_ClaimDetailsPartial", claim);
+        }
+
+        [HttpGet]
+        public IActionResult DownloadDocument(int documentId)
+        {
+            var doc = _db.Documents.FirstOrDefault(d => d.DocumentId == documentId);
+            if (doc == null)
+                return NotFound("Document not found.");
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", doc.FilePath);
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("File does not exist on the server.");
+
+            return PhysicalFile(filePath, "application/octet-stream", doc.FileName);
+        }
+
     }
 }

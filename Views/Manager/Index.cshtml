@@ -1,4 +1,5 @@
 ﻿@model List<ClaimModel>
+
 @{
     ViewData["Title"] = "Manager Dashboard";
     ViewBag.Role = "Manager";
@@ -13,8 +14,11 @@
 
 <div class="card shadow-lg border-0">
     <div class="card-header bg-success text-white text-center py-4">
-        <h3 class="mb-0"><i class="fas fa-thumbs-up me-3"></i> Verified Claims Awaiting Approval (@Model.Count)</h3>
+        <h3 class="mb-0">
+            <i class="fas fa-thumbs-up me-3"></i> Verified Claims Awaiting Approval (@Model.Count)
+        </h3>
     </div>
+
     <div class="card-body p-0">
         @if (!Model.Any())
         {
@@ -46,7 +50,7 @@
                             ? $"{c.Approval.VerifiedBy.FirstName} {c.Approval.VerifiedBy.LastName}"
                             : "Unknown";
 
-                            <tr class="claim-row" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#claimModal" data-claim-id="@c.ClaimId">
+                            <tr class="claim-row" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#claimModal" data-claim-id="@c.ClaimId">
                                 <td><strong>#@c.ClaimId</strong></td>
                                 <td>
                                     <div>@c.User.FirstName @c.User.LastName</div>
@@ -56,9 +60,7 @@
                                 <td><strong>R @c.TotalAmount.ToString("N2")</strong></td>
                                 <td><small>@verifiedBy</small></td>
                                 <td>
-                                    <span class="badge bg-success">
-                                        @c.Documents.Count <i class="fas fa-paperclip"></i>
-                                    </span>
+                                    <span class="badge bg-success">@c.Documents.Count <i class="fas fa-paperclip"></i></span>
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-info">Verified</span>
@@ -71,3 +73,50 @@
         }
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="claimModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-thumbs-up me-2"></i>Claim Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <!-- Content will be loaded via AJAX -->
+                    <div class="text-center py-5">
+                        <p class="text-muted">Loading claim details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Prevent modal flicker by only opening when clicking the row itself, not buttons/links
+        document.querySelectorAll("tr[data-bs-toggle='modal']").forEach(row => {
+            row.addEventListener("click", function (e) {
+                if (e.target.tagName === "A" || e.target.tagName === "BUTTON" || e.target.closest("a") || e.target.closest("button")) {
+                    return;
+                }
+
+                const claimId = this.getAttribute("data-claim-id");
+                const modalContent = document.getElementById("modalContent");
+                modalContent.innerHTML = '<div class="text-center py-5"><p class="text-muted">Loading claim details...</p></div>';
+
+                // Load claim details via AJAX
+                fetch(`/Manager/GetClaimDetails/${claimId}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        modalContent.innerHTML = html;
+                    });
+
+                const modal = new bootstrap.Modal(document.getElementById("claimModal"));
+                modal.show();
+            });
+        });
+    </script>
+}

@@ -1,13 +1,23 @@
 ﻿@model CMCS_PROG6212_POE.Models.ClaimModel
+
 @{
-    ViewData["Title"] = "Submit New Claim";
+    ViewData["Title"] = "Submit Claim";
 }
 
 <div class="card shadow-lg border-0">
-    <div class="card-header bg-gradient-primary text-white text-center py-4">
-        <h3 class="mb-0"><i class="fas fa-file-invoice-dollar me-3"></i>Submit Monthly Claim</h3>
+    <div class="card-header bg-primary text-white text-center py-4">
+        <h3>Submit Monthly Claim</h3>
     </div>
     <div class="card-body p-5">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
         <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data">
             <div class="row g-4">
                 <div class="col-md-6">
@@ -20,30 +30,31 @@
                         <span class="input-group-text">R</span>
                         <input asp-for="HourlyRate" class="form-control form-control-lg" step="0.01" readonly />
                     </div>
-                    <small class="text-muted">Your rate: R@ViewBag.HourlyRate</small>
+                    <small class="text-muted">Rate set by HR: R@Model.HourlyRate</small>
                 </div>
             </div>
 
             <div class="mt-4">
                 <label class="form-label fw-bold">Additional Notes</label>
-                <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Optional description of work..."></textarea>
+                <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
             </div>
 
-            <div class="mt-5">
-                <label class="form-label fw-bold d-block">Supporting Documents</label>
+            <div class="mt-4">
+                <label class="form-label fw-bold">Supporting Documents <span class="text-danger">*</span></label>
                 <div class="drag-drop-zone border-2 border-dashed rounded-3 p-5 text-center" id="dropZone">
                     <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
                     <p class="lead">Drag & drop files here or click to browse</p>
                     <input type="file" name="files" multiple class="d-none" id="fileInput" accept=".pdf,.docx,.xlsx,.jpg,.png" />
                     <div id="fileList" class="mt-3"></div>
+                    <div class="progress mt-3" style="height: 20px; display: none;">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                    </div>
                 </div>
                 <small class="text-muted">Max 10MB total • PDF, Word, Excel, Images allowed</small>
             </div>
 
             <div class="text-center mt-5">
-                <button type="submit" class="btn btn-success btn-lg px-5">
-                    <i class="fas fa-paper-plane me-2"></i> Submit Claim
-                </button>
+                <button type="submit" class="btn btn-success btn-lg px-5">Submit Claim</button>
                 <a asp-action="Index" class="btn btn-secondary btn-lg px-5">Cancel</a>
             </div>
         </form>
@@ -61,38 +72,63 @@
             background: #e3f2fd;
             border-color: #2196f3;
         }
-
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
 </style>
 
 <script>
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
+    const progress = document.querySelector('.progress');
+    const progressBar = document.getElementById('progressBar');
 
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
-        dropZone.addEventListener(event, e => e.preventDefault());
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Handle drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+        dropZone.addEventListener(evt, e => e.preventDefault());
     });
-
     dropZone.addEventListener('dragenter', () => dropZone.classList.add('dragover'));
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+    // Handle drop
     dropZone.addEventListener('drop', e => {
         dropZone.classList.remove('dragover');
         handleFiles(e.dataTransfer.files);
     });
 
-    dropZone.addEventListener('click', () => fileInput.click());
+    // Handle file input change
     fileInput.addEventListener('change', () => handleFiles(fileInput.files));
 
+    // Function to display files and assign to input
     function handleFiles(files) {
         fileList.innerHTML = '';
+        const dataTransfer = new DataTransfer(); // Needed to assign dropped files to input
         [...files].forEach(file => {
             const div = document.createElement('div');
             div.className = 'badge bg-success me-2 mb-2';
             div.textContent = `${file.name} (${(file.size/1024).toFixed(1)} KB)`;
             fileList.appendChild(div);
+            dataTransfer.items.add(file); // Add file to input
         });
+        fileInput.files = dataTransfer.files;
     }
+
+    // Show progress bar animation on submit
+    document.querySelector('form').addEventListener('submit', e => {
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            alert("Please upload at least one supporting document.");
+            return;
+        }
+        progress.style.display = 'block';
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) clearInterval(interval);
+            else {
+                width += 10;
+                progressBar.style.width = width + '%';
+                progressBar.textContent = width + '%';
+            }
+        }, 50);
+    });
 </script>

@@ -1,0 +1,49 @@
+﻿@model CMCS_PROG6212_POE.Models.ClaimModel
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Claim ID</dt>
+        <dd class="col-sm-9">@Model.ClaimId</dd>
+
+        <dt class="col-sm-3">Lecturer</dt>
+        <dd class="col-sm-9">@Model.User.FirstName @Model.User.LastName</dd>
+
+        <dt class="col-sm-3">Hours Worked</dt>
+        <dd class="col-sm-9">@Model.HoursWorked h</dd>
+
+        <dt class="col-sm-3">Total Amount</dt>
+        <dd class="col-sm-9">R @Model.TotalAmount.ToString("N2")</dd>
+
+        <dt class="col-sm-3">Submitted</dt>
+        <dd class="col-sm-9">@Model.SubmittedDate.ToString("dd MMM yyyy")</dd>
+
+        <dt class="col-sm-3">Documents</dt>
+        <dd class="col-sm-9">
+            @if (Model.Documents.Any())
+            {
+                <ul>
+                    @foreach (var doc in Model.Documents)
+                    {
+                        <li>
+                            <a href="/Manager/DownloadDocument?documentId=@doc.DocumentId" class="text-success">
+                                @doc.FileName <i class="fas fa-download"></i>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span class="text-muted">No documents uploaded.</span>
+            }
+        </dd>
+    </dl>
+
+    <form method="post" asp-action="Approve">
+        <input type="hidden" name="claimId" value="@Model.ClaimId" />
+        <div class="text-end">
+            <button type="submit" name="action" value="Approve" class="btn btn-success me-2">Approve</button>
+            <button type="submit" name="action" value="Reject" class="btn btn-danger">Reject</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,39 @@
+﻿@model CMCS_PROG6212_POE.Models.ClaimModel
+
+<div>
+    <h5>Claim #@Model.ClaimId</h5>
+    <p><strong>Lecturer:</strong> @Model.User.FirstName @Model.User.LastName (@Model.User.Email)</p>
+    <p><strong>Hours Worked:</strong> @Model.HoursWorked h</p>
+    <p><strong>Total:</strong> R @Model.TotalAmount.ToString("N2")</p>
+    <p><strong>Submitted:</strong> @Model.SubmittedDate.ToString("dd MMM yyyy")</p>
+    <p><strong>Notes:</strong> @Model.Notes</p>
+
+    <p><strong>Supporting Documents:</strong></p>
+    @if (Model.Documents.Any())
+    {
+        <ul>
+            @foreach (var doc in Model.Documents)
+            {
+                <li>
+                    <a href="@Url.Action("DownloadDocument", "Coordinator", new { documentId = doc.DocumentId })">
+                        @doc.FileName
+                    </a>
+                    <small class="text-muted">(@(doc.FileSize / 1024) KB)</small>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-danger">No documents uploaded!</p>
+    }
+
+
+    <div class="text-center mt-4">
+        <form method="post" asp-action="Verify">
+            <input type="hidden" name="claimId" value="@Model.ClaimId" />
+            <button type="submit" name="action" value="Verify" class="btn btn-success me-2">Verify</button>
+            <button type="submit" name="action" value="Reject" class="btn btn-danger">Reject</button>
+        </form>
+    </div>
+</div>
