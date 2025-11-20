@@ -317,10 +317,10 @@ public IActionResult DownloadClaimInvoice(int claimId)
                                     : "Not Approved";
 
                                 table.Cell().Text("Verified By:").Bold();
-                                table.Cell().Text(verifiedBy + "(coordinator)");
+                                table.Cell().Text(verifiedBy + " (coordinator)");
 
                                 table.Cell().Text("Approved By:").Bold();
-                                table.Cell().Text(approvedBy + "(Manager)");
+                                table.Cell().Text(approvedBy + " (Manager)");
                             }
                             else
                             {

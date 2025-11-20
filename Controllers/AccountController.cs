@@ -1,6 +1,7 @@
 ﻿// Controllers/AccountController.cs
 using CMCS_PROG6212_POE.Data;
 using CMCS_PROG6212_POE.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,6 +54,13 @@ namespace CMCS_PROG6212_POE.Controllers
                 UserRole.Manager => RedirectToAction("Index", "Manager"),
                 _ => RedirectToAction("Login")
             };
+        }
+        
+        public IActionResult AccessDenied()
+        {
+            // Optional: pass a friendly message
+            ViewBag.Message = "You do not have permission to access this page.";
+            return View();
         }
 
         public IActionResult Logout()
