@@ -9,9 +9,17 @@
         <h3>Submit Monthly Claim</h3>
     </div>
     <div class="card-body p-5">
-        @if (TempData["Error"] != null)
+        @if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger">@TempData["Error"]</div>
+            <div class="alert alert-danger">
+                <strong>Please fix the following errors:</strong>
+                <ul class="mb-0">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
         }
         @if (TempData["Success"] != null)
         {
@@ -21,8 +29,10 @@
         <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data">
             <div class="row g-4">
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">Hours Worked</label>
-                    <input asp-for="HoursWorked" class="form-control form-control-lg" required />
+                    <label class="form-label">Hours Worked <span class="text-danger">*</span></label>
+                    <input type="number" asp-for="HoursWorked" class="form-control" step="0.5" min="0.5" max="180" required />
+                    <small class="text-muted">Maximum 180 hours per month</small>
+                    <span asp-validation-for="HoursWorked" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Hourly Rate</label>
@@ -30,7 +40,7 @@
                         <span class="input-group-text">R</span>
                         <input asp-for="HourlyRate" class="form-control form-control-lg" step="0.01" readonly />
                     </div>
-                    <small class="text-muted">Rate set by HR: R@Model.HourlyRate</small>
+                    <small class="text-muted">Rate set by HR: R @Model.HourlyRate</small>
                 </div>
             </div>
 

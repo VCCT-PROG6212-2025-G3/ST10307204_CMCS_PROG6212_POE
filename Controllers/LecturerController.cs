@@ -62,29 +62,6 @@ namespace CMCS_PROG6212_POE.Controllers
 
             return View(model);
         }
-        // TrackClaim
-        public IActionResult TrackClaim()
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                TempData["Error"] = "Session expired. Please log in again.";
-                return RedirectToAction("Index", "Home");
-            }
-
-            var claims = _db.Claims
-                .Include(c => c.Documents) // Include documents
-                .Include(c => c.Approval)
-                .Where(c => c.UserId == userId)
-                .OrderByDescending(c => c.SubmittedDate)
-                .ToList();
-
-            return View(claims);
-        }
-
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult SubmitClaim(ClaimModel model, List<IFormFile> files)
@@ -96,17 +73,39 @@ namespace CMCS_PROG6212_POE.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (files == null || !files.Any())
-            {
-                TempData["Error"] = "You must upload at least one supporting document.";
-                return RedirectToAction("SubmitClaim");
-            }
-
             var lecturer = _db.Lecturers.FirstOrDefault(l => l.UserId == userId.Value);
             if (lecturer == null)
             {
                 TempData["Error"] = "Lecturer record not found.";
                 return RedirectToAction("Index");
+            }
+
+            // === NEW: HOURS VALIDATION (MAX 180 PER MONTH) ===
+            if (model.HoursWorked > 180)
+            {
+                ModelState.AddModelError("HoursWorked",
+                    "You cannot claim more than 180 hours in a single month. Please adjust your hours.");
+            }
+
+            // Optional: Also prevent negative or zero hours
+            if (model.HoursWorked <= 0)
+            {
+                ModelState.AddModelError("HoursWorked",
+                    "Hours worked must be greater than zero.");
+            }
+
+            // File validation
+            if (files == null || !files.Any() || files.All(f => f.Length == 0))
+            {
+                ModelState.AddModelError("", "You must upload at least one supporting document.");
+            }
+
+            // If validation fails — return to form with errors
+            if (!ModelState.IsValid)
+            {
+                // Re-populate the form with lecturer's rate
+                model.HourlyRate = lecturer.HourlyRate;
+                return View(model);
             }
 
             try
@@ -121,13 +120,14 @@ namespace CMCS_PROG6212_POE.Controllers
                 if (!Directory.Exists(_uploadPath))
                     Directory.CreateDirectory(_uploadPath);
 
-                foreach (var file in files)
+                foreach (var file in files.Where(f => f.Length > 0))
                 {
                     var ext = Path.GetExtension(file.FileName).ToLower();
-                    if (!new[] { ".pdf", ".docx", ".xlsx", ".jpg", ".png" }.Contains(ext))
+                    if (!new[] { ".pdf", ".docx", ".xlsx", ".jpg", ".jpeg", ".png" }.Contains(ext))
                     {
-                        TempData["Error"] = $"Invalid file type: {file.FileName}";
-                        return RedirectToAction("SubmitClaim");
+                        ModelState.AddModelError("", $"Invalid file type: {file.FileName}");
+                        model.HourlyRate = lecturer.HourlyRate;
+                        return View(model);
                     }
 
                     var fileName = $"doc_{Guid.NewGuid()}{ext}";
@@ -154,9 +154,30 @@ namespace CMCS_PROG6212_POE.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Error submitting claim: " + ex.Message;
-                return RedirectToAction("SubmitClaim");
+                ModelState.AddModelError("", "An error occurred while submitting your claim.");
+                model.HourlyRate = lecturer.HourlyRate;
+                return View(model);
             }
+        }
+        // TrackClaim
+        public IActionResult TrackClaim()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                TempData["Error"] = "Session expired. Please log in again.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var claims = _db.Claims
+                .Include(c => c.Documents) // Include documents
+                .Include(c => c.Approval)
+                .Where(c => c.UserId == userId)
+                .OrderByDescending(c => c.SubmittedDate)
+                .ToList();
+
+            return View(claims);
         }
 
     }
