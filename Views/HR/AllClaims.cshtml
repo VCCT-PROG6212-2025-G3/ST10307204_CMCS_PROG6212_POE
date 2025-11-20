@@ -1,0 +1,84 @@
+﻿@model IEnumerable<CMCS_PROG6212_POE.Models.ClaimModel>
+@{
+    ViewData["Title"] = "All Claims - HR";
+}
+
+<div class="container-fluid py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold text-primary">
+                <i class="fas fa-list-alt me-3"></i> All Claims
+            </h1>
+            <p class="text-muted">View all lecturer claims</p>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
+            <h3>No claims submitted yet</h3>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Lecturer</th>
+                                <th>Email</th>
+                                <th>Hours</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.OrderByDescending(c => c.SubmittedDate))
+                            {
+                                var badge = c.Status == "Approved" ? "bg-success" :
+                                c.Status == "Pending" ? "bg-warning text-dark" :
+                                c.Status == "Verified" ? "bg-info" : "bg-danger";
+
+                                <tr>
+                                    <td><strong>@c.User.FirstName @c.User.LastName</strong></td>
+                                    <td>@c.User.Email</td>
+                                    <td class="text-center">@c.HoursWorked</td>
+                                    <td class="text-success fw-bold">R @c.TotalAmount</td>
+                                    <td><span class="badge @badge px-3 py-2">@c.Status</span></td>
+                                    <td>@c.SubmittedDate.ToString("dd MMM yyyy")</td>
+                                    <td class="text-center">
+                                        @if (c.Status == "Approved")
+                                        {
+                                            <a asp-action="DownloadClaimInvoice"
+                                            asp-route-claimId="@c.ClaimId"
+                                            class="btn btn-danger btn-sm me-2"
+                                            title="Download PDF Invoice">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </a>
+                                        }
+                                        <a asp-action="ClaimDetails"
+                                               asp-route-id="@c.ClaimId"
+                                               class="btn btn-primary btn-sm"
+                                               title="View Claim Details">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        
+                                        
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

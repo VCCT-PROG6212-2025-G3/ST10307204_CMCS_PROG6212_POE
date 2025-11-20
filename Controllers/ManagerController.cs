@@ -19,6 +19,8 @@ namespace CMCS_PROG6212_POE.Controllers
             var claims = _db.Claims
                 .Include(c => c.User)
                 .Include(c => c.Documents)
+                .Include(c => c.Approval)
+                    .ThenInclude(a => a!.VerifiedBy)
                 .Where(c => c.Status == "Verified")
                 .ToList();
 
@@ -65,6 +67,7 @@ namespace CMCS_PROG6212_POE.Controllers
                 .Include(c => c.User)
                 .Include(c => c.Documents)
                 .Include(c => c.Approval)
+                    .ThenInclude(a => a!.VerifiedBy)
                 .FirstOrDefault(c => c.ClaimId == id);
 
             if (claim == null)

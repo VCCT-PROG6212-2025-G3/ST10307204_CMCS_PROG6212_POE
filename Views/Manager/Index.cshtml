@@ -46,8 +46,9 @@
                     <tbody>
                         @foreach (var c in Model)
                         {
+                            
                             var verifiedBy = c.Approval?.VerifiedBy != null
-                            ? $"{c.Approval.VerifiedBy.FirstName} {c.Approval.VerifiedBy.LastName}"
+                            ? $"{c.Approval.VerifiedBy.FirstName} {c.Approval.VerifiedBy.LastName} (Coordinator)"   
                             : "Unknown";
 
                             <tr class="claim-row" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#claimModal" data-claim-id="@c.ClaimId">
@@ -58,7 +59,7 @@
                                 </td>
                                 <td>@c.HoursWorked h</td>
                                 <td><strong>R @c.TotalAmount.ToString("N2")</strong></td>
-                                <td><small>@verifiedBy</small></td>
+                                <td><strong>@verifiedBy</strong></td>
                                 <td>
                                     <span class="badge bg-success">@c.Documents.Count <i class="fas fa-paperclip"></i></span>
                                 </td>

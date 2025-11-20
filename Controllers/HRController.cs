@@ -6,6 +6,10 @@ using CMCS_PROG6212_POE.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Helpers;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+
 
 namespace CMCS_PROG6212_POE.Controllers
 {
@@ -160,6 +164,185 @@ namespace CMCS_PROG6212_POE.Controllers
             }
             return RedirectToAction("Lecturers");
         }
+        public IActionResult AllClaims()
+        {
+            var claims = _db.Claims
+                .Include(c => c.User)
+                .OrderByDescending(c => c.SubmittedDate)
+                .ToList();
 
+            return View(claims);
+        }
+        public IActionResult ClaimDetails(int id)
+        {
+            var claim = _db.Claims
+                .Include(c => c.User)
+                .Include(c => c.Documents)
+                .Include(c => c.Approval)
+                    .ThenInclude(a => a!.VerifiedBy)
+                .Include(c => c.Approval)
+                    .ThenInclude(a => a!.ApprovedBy)
+                .FirstOrDefault(c => c.ClaimId == id);
+
+            if (claim == null) return NotFound();
+
+            return View(claim);
+        }
+
+        public IActionResult PaymentReport()
+        {
+            var approvedClaims = _db.Claims
+                .Include(c => c.User)
+                .Include(c => c.Approval)
+                .Where(c => c.Status == "Approved")
+                .OrderBy(c => c.User.LastName)
+                .ThenBy(c => c.User.FirstName)
+                .ToList();
+
+            ViewBag.TotalAmount = approvedClaims.Sum(c => c.TotalAmount);
+            ViewBag.ClaimCount = approvedClaims.Count;
+            ViewBag.GeneratedOn = DateTime.Now;
+
+            return View(approvedClaims);
+        }
+
+ 
+
+public IActionResult DownloadClaimInvoice(int claimId)
+    {
+        var claim = _db.Claims
+            .Include(c => c.User)
+            .Include(c => c.Documents)
+            .Include(c => c.Approval)
+                .ThenInclude(a => a!.VerifiedBy)
+            .Include(c => c.Approval)
+                .ThenInclude(a => a!.ApprovedBy)
+            .FirstOrDefault(c => c.ClaimId == claimId && c.Status == "Approved");
+
+        if (claim == null)
+        {
+            TempData["Error"] = "Approved claim not found.";
+            return RedirectToAction("AllClaims");
+        }
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(50);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(11).FontFamily("Segoe UI"));
+
+                page.Header()
+                    .AlignCenter()
+                    .PaddingBottom(20)
+                    .Text("CLAIM PAYMENT INVOICE")
+                    .FontSize(28)
+                    .Bold()
+                    .FontColor("#1e40af");
+
+                page.Content()
+                    .Column(col =>
+                    {
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(left =>
+                            {
+                                left.Item().Text("IIE Varsity College Cape Town").FontSize(14).Bold();
+                                left.Item().Text("Finance & Payroll Department");
+                                left.Item().Text("151 CampGround Road, Newlands 7708");
+                                left.Item().Text("Email: payroll@vcconnect.edu.za");
+                            });
+
+                            row.ConstantItem(180).AlignRight().Column(right =>
+                            {
+                                right.Item().AlignRight().Text($"Invoice No: CMCS-{claim.ClaimId:D6}")
+                                    .FontSize(12).Bold();
+                                right.Item().AlignRight().Text($"Issue Date: {DateTime.Now:yyyy-MM-dd}");
+                                right.Item().AlignRight().Text($"Claim Date: {claim.SubmittedDate:yyyy-MM-dd}");
+                                right.Item().AlignRight().PaddingTop(10)
+                                    .Text("STATUS: APPROVED")
+                                    .FontSize(14).Bold().FontColor(Colors.Green.Darken2);
+                            });
+                        });
+
+                        col.Item().PaddingTop(30).LineHorizontal(2).LineColor(Colors.Grey.Lighten1);
+
+                        col.Item().PaddingTop(20).Row(row =>
+                        {
+                            row.RelativeItem().Column(payee =>
+                            {
+                                payee.Item().Text("PAY TO:").Bold().FontSize(12);
+                                payee.Item().Text($"{claim.User.FirstName} {claim.User.LastName}")
+                                    .FontSize(16).Bold();
+                                payee.Item().Text(claim.User.Email);
+                                payee.Item().Text("Lecturer");
+                            });
+
+                            row.ConstantItem(200).AlignRight().Column(amount =>
+                            {
+                                amount.Item().Text("PAYMENT SUMMARY").Bold();
+                                amount.Item().PaddingTop(10).Text($"Hours Worked: {claim.HoursWorked:F1}");
+                                amount.Item().Text($"Hourly Rate: R {claim.HourlyRate:N2}");
+                                amount.Item().PaddingTop(15).Text("TOTAL PAYABLE:")
+                                    .FontSize(16).Bold();
+                                amount.Item().Text($"R {claim.TotalAmount:N2}")
+                                    .FontSize(32).Bold().FontColor(Colors.Green.Darken3);
+                            });
+                        });
+
+                        col.Item().PaddingTop(40).Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                            });
+
+                            table.Cell().Text("Notes:").Bold();
+                            table.Cell().Text(string.IsNullOrEmpty(claim.Notes) ? "No additional notes." : claim.Notes);
+
+                            table.Cell().Text("Submitted On:").Bold();
+                            table.Cell().Text(claim.SubmittedDate.ToString("dddd, dd MMMM yyyy 'at' HH:mm"));
+
+                            if (claim.Approval != null)
+                            {
+                                var verifiedBy = claim.Approval.VerifiedBy != null
+                                    ? $"{claim.Approval.VerifiedBy.FirstName} {claim.Approval.VerifiedBy.LastName}"
+                                    : "Not Verified";
+
+                                var approvedBy = claim.Approval.ApprovedBy != null
+                                    ? $"{claim.Approval.ApprovedBy.FirstName} {claim.Approval.ApprovedBy.LastName}"
+                                    : "Not Approved";
+
+                                table.Cell().Text("Verified By:").Bold();
+                                table.Cell().Text(verifiedBy + "(coordinator)");
+
+                                table.Cell().Text("Approved By:").Bold();
+                                table.Cell().Text(approvedBy + "(Manager)");
+                            }
+                            else
+                            {
+                                table.Cell().Text("Status:").Bold();
+                                table.Cell().Text("Approved");
+                            }
+                        });
+                    });
+
+                page.Footer()
+                    .AlignCenter()
+                    .PaddingTop(20)
+                    .Text("Thank you for your valuable contribution to CMCU.")
+                    .FontSize(10)
+                    .Italic()
+                    .FontColor(Colors.White);
+            });
+        });
+
+        var pdfBytes = document.GeneratePdf();
+        return File(pdfBytes, "application/pdf",
+            $"CMCU_Claim_Invoice_{claim.ClaimId}_{claim.User.LastName}_{claim.User.FirstName}.pdf");
     }
+}
 }

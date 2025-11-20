@@ -14,6 +14,9 @@
         <dt class="col-sm-3">Total Amount</dt>
         <dd class="col-sm-9">R @Model.TotalAmount.ToString("N2")</dd>
 
+        <dt class="col-sm-3">Verified By</dt>
+        <dd class="col-sm-9">@Model.Approval.VerifiedBy.FirstName @Model.Approval.VerifiedBy.LastName (Coordinator)</dd>
+
         <dt class="col-sm-3">Submitted</dt>
         <dd class="col-sm-9">@Model.SubmittedDate.ToString("dd MMM yyyy")</dd>
 

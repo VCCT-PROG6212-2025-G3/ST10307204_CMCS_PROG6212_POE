@@ -1,5 +1,6 @@
 using CMCS_PROG6212_POE.Data;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
 
 namespace CMCS_PROG6212_POE
 {
@@ -8,6 +9,7 @@ namespace CMCS_PROG6212_POE
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            QuestPDF.Settings.License = LicenseType.Community;
 
             // Add services
             builder.Services.AddControllersWithViews();
